@@ -67,13 +67,13 @@ const sentimentMap = {
   },
   3: {
     label: 'Directional',
-    color: 'text-purple-400',
+    color: 'text-[#E5751F]',
     symbolColor: '#c800c1',
     icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="w-4 h-4" style={{ transform: 'scale(1.3)', color: '#c800c1' }}><path fill="currentColor" d="M403.8 34.4c12-5 25.7-2.2 34.9 6.9l64 64c6 6 9.4 14.1 9.4 22.6s-3.4 16.6-9.4 22.6l-64 64c-9.2 9.2-22.9 11.9-34.9 6.9s-19.8-16.6-19.8-29.6l0-32-37.5 0c-8.5 0-16.6 3.4-22.6 9.4L237.3 256l86.6 86.6c6 6 14.1 9.4 22.6 9.4l37.5 0 0-32c0-12.9 7.8-24.6 19.8-29.6s25.7-2.2 34.9 6.9l64 64c6 6 9.4 14.1 9.4 22.6s-3.4 16.6-9.4 22.6l-64 64c-9.2 9.2-22.9 11.9-34.9 6.9s-19.8-16.6-19.8-29.6l0-32-37.5 0c-25.5 0-49.9-10.1-67.9-28.1L178.7 288 32 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l146.7 0 99.9-99.9c18-18 42.4-28.1 67.9-28.1L384 96l0-32c0-12.9 7.8-24.6 19.8-29.6z"></path></svg>
   },
   4: {
     label: 'Bullish',
-    color: 'text-green-400',
+    color: 'text-[#E5751F]',
     symbolColor: '#00c038',
     icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" className="w-4 h-4" style={{ transform: 'scale(1.35)', color: '#00c038' }}><path fill="currentColor" d="M384 160c-17.7 0-32-14.3-32-32s14.3-32 32-32l160 0c17.7 0 32 14.3 32 32l0 160c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-82.7L342.6 374.6c-12.5 12.5-32.8 12.5-45.3 0L192 269.3 54.6 406.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160c12.5-12.5 32.8-12.5 45.3 0L320 306.7 466.7 160 384 160z"></path></svg>
   },
@@ -150,9 +150,9 @@ const formatExpiration = (dateString) => {
 const getFlowType = (flow) => {
   const flowType = flow.flowType ?? flow.type;
   switch(flowType) {
-    case 3: return <span className="text-purple-400 font-semibold">BLOCK</span>;
+    case 3: return <span className="text-[#E5751F] font-semibold">BLOCK</span>;
     case 2: return <span className="text-orange-400 font-semibold">SWEEP</span>;
-    case 1: return <span className="text-blue-400">SPLIT</span>;
+    case 1: return <span className="text-[#E5751F]">SPLIT</span>;
     case 0:
     default: return null;
   }
@@ -1443,14 +1443,14 @@ function App() {
               >
                 Cancel Loading
               </button>
-              <div className="mt-3 text-blue-300 text-sm">
+              <div className="mt-3 text-[#E5751F] text-sm">
                 Loading... {loadAllProgress.toLocaleString()} rows loaded
               </div>
             </>
           ) : (
             <button
               onClick={handleLoadAll}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded font-semibold transition-colors"
+              className="bg-[#861F41] hover:bg-[#6b1835] text-white px-6 py-2 rounded font-semibold transition-colors"
             >
               Fetch more data
             </button>
@@ -1474,10 +1474,10 @@ function App() {
           onContextMenu={(e) => handleRowClick(e, flow.code)}
           style={{
             ...(isSelected ? {
-              borderLeft: '2px solid #bedbed',
-              borderRight: '2px solid #bedbed',
-              borderTop: isPrevSelected ? 'none' : '2px solid #bedbed',
-              borderBottom: isNextSelected ? 'none' : '2px solid #bedbed',
+              borderLeft: '2px solid #E5751F',
+              borderRight: '2px solid #E5751F',
+              borderTop: isPrevSelected ? 'none' : '2px solid #E5751F',
+              borderBottom: isNextSelected ? 'none' : '2px solid #E5751F',
               // Use padding and negative margin to overlap and hide borders
               ...(isPrevSelected ? {
                 marginTop: '-4px',
@@ -1487,13 +1487,13 @@ function App() {
               // Higher z-index for later rows so they cover earlier rows
               zIndex: 10 + index,
               // Add a subtle background to prevent border color bleeding
-              backgroundColor: '#0a0d2e',
+              backgroundColor: '#2d1118',
               // Ensure background extends fully
               boxSizing: 'border-box'
             } : {})
           }}
         >
-          <table className="w-full hover:bg-[#0f1435] cursor-pointer transition-colors" style={{
+          <table className="w-full hover:bg-[#3d1a22] cursor-pointer transition-colors" style={{
             tableLayout: 'fixed',
             minWidth: '700px',
             borderBottom: isSelected ? 'none' : '1px solid #1f2937',
@@ -1568,14 +1568,14 @@ function App() {
               >
                 Cancel Loading
               </button>
-              <div className="mt-3 text-blue-300 text-sm">
+              <div className="mt-3 text-[#E5751F] text-sm">
                 Loading... {loadAllProgress.toLocaleString()} rows loaded
               </div>
             </>
           ) : (
             <button
               onClick={handleLoadAll}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded font-semibold transition-colors"
+              className="bg-[#861F41] hover:bg-[#6b1835] text-white px-6 py-2 rounded font-semibold transition-colors"
             >
               Fetch more data
             </button>
@@ -1598,9 +1598,9 @@ function App() {
         <div
           style={{
             ...(isSelected ? {
-              border: '2px solid #bedbed',
-              borderTop: isPrevSelected ? 'none' : '2px solid #bedbed',
-              borderBottom: isNextSelected ? 'none' : '2px solid #bedbed',
+              border: '2px solid #E5751F',
+              borderTop: isPrevSelected ? 'none' : '2px solid #E5751F',
+              borderBottom: isNextSelected ? 'none' : '2px solid #E5751F',
               // Use negative margin to overlap borders
               ...(isPrevSelected ? {
                 marginTop: '-1px'
@@ -1612,7 +1612,7 @@ function App() {
               // Higher z-index for later rows so they cover earlier rows
               zIndex: 10 + index,
               // Add a subtle background to prevent border color bleeding
-              backgroundColor: '#0a0d2e',
+              backgroundColor: '#2d1118',
               // Ensure background extends fully
               boxSizing: 'border-box'
             } : {}),
@@ -1622,7 +1622,7 @@ function App() {
             lineHeight: '1.35em'
           }}
           onContextMenu={(e) => handleRowClick(e, flow.code)}
-          className={`p-3 hover:bg-[#0f1435] transition-colors`}
+          className={`p-3 hover:bg-[#3d1a22] transition-colors`}
         >
         {isMobileView ? (
           // Extra small screens: 3-column layout
@@ -1817,14 +1817,14 @@ function App() {
   // If not logged in, show full-screen login page
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#040421] text-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[#1a0a11] text-gray-100 flex items-center justify-center">
         <div className="w-full max-w-md mx-4">
           <div className="text-center mb-8">
             <img src="/logo.png" alt="Logo" className="w-16 h-16 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold" style={{ color: '#bedbed' }}>Options Flow Tracker</h1>
+            <h1 className="text-2xl font-bold" style={{ color: '#E5751F' }}>Options Flow Tracker</h1>
             <p className="text-gray-400 text-sm mt-2">CS 4604 - Database Management Systems</p>
           </div>
-          <div className="bg-[#0a0d2e] border border-gray-700 rounded-lg p-6">
+          <div className="bg-[#2d1118] border border-gray-700 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <User className="w-5 h-5" />
               {authMode === 'login' ? 'Log In' : 'Create Account'}
@@ -1834,24 +1834,24 @@ function App() {
               {authMode === 'register' && (
                 <input type="text" placeholder="Name" value={authForm.name}
                   onChange={e => setAuthForm(f => ({...f, name: e.target.value}))}
-                  className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-500" />
+                  className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
               )}
               <input type="email" placeholder="Email" required value={authForm.email}
                 onChange={e => setAuthForm(f => ({...f, email: e.target.value}))}
-                className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-500" />
+                className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
               <input type="password" placeholder="Password" required value={authForm.password}
                 onChange={e => setAuthForm(f => ({...f, password: e.target.value}))}
-                className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-500" />
+                className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
               <button type="submit" disabled={authLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-3 rounded font-semibold text-sm transition-colors">
+                className="w-full bg-[#861F41] hover:bg-[#6b1835] disabled:bg-gray-600 text-white py-3 rounded font-semibold text-sm transition-colors">
                 {authLoading ? 'Loading...' : (authMode === 'login' ? 'Log In' : 'Create Account')}
               </button>
             </form>
             <div className="mt-4 text-center text-sm text-gray-400">
               {authMode === 'login' ? (
-                <>Don't have an account? <button onClick={() => { setAuthMode('register'); setAuthError(''); }} className="text-blue-400 hover:underline">Sign up</button></>
+                <>Don't have an account? <button onClick={() => { setAuthMode('register'); setAuthError(''); }} className="text-[#E5751F] hover:underline">Sign up</button></>
               ) : (
-                <>Already have an account? <button onClick={() => { setAuthMode('login'); setAuthError(''); }} className="text-blue-400 hover:underline">Log in</button></>
+                <>Already have an account? <button onClick={() => { setAuthMode('login'); setAuthError(''); }} className="text-[#E5751F] hover:underline">Log in</button></>
               )}
             </div>
           </div>
@@ -1861,10 +1861,10 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#040421] text-gray-100">
+    <div className="min-h-screen bg-[#1a0a11] text-gray-100">
       {/* Loading Overlay */}
       {isInitialLoading && (
-        <div className="fixed inset-0 bg-[#040421] z-50 flex flex-col items-center justify-center">
+        <div className="fixed inset-0 bg-[#1a0a11] z-50 flex flex-col items-center justify-center">
           <div className="flex flex-col items-center gap-6">
             {/* Logo */}
             <img src="/logo.png" alt="Logo" className="w-20 h-20 animate-pulse" />
@@ -1878,7 +1878,7 @@ function App() {
             {/* Progress Bar */}
             <div className="w-64 h-2 bg-gray-800 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
+                className="h-full bg-gradient-to-r from-[#861F41] to-[#E5751F] transition-all duration-300 ease-out"
                 style={{ width: `${loadingProgress}%` }}
               ></div>
             </div>
@@ -1888,21 +1888,21 @@ function App() {
 
             {/* Spinner */}
             <div className="flex gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-3 h-3 bg-[#E5751F] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-3 h-3 bg-[#861F41] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
               <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
             </div>
           </div>
         </div>
       )}
 
-      <header className="bg-[#0a0d2e] border-b border-gray-800 py-3 md:py-4">
+      <header className="bg-[#2d1118] border-b border-gray-800 py-3 md:py-4">
         {/* Mobile header */}
         <div className="xl:hidden px-4 md:px-6">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
             <div className="flex items-center gap-2">
               <img src="/logo.png" alt="Logo" className="w-8 h-8 md:w-9 md:h-9" />
-              <h1 className="text-lg md:text-xl font-bold" style={{ color: '#bedbed' }}>
+              <h1 className="text-lg md:text-xl font-bold" style={{ color: '#E5751F' }}>
                 OptionFlow
               </h1>
             </div>
@@ -1922,7 +1922,7 @@ function App() {
                 )}
                 <button
                   onClick={handleExportCSV}
-                  className="flex items-center gap-1.5 px-2.5 md:px-4 py-1.5 md:py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-xs md:text-base justify-center"
+                  className="flex items-center gap-1.5 px-2.5 md:px-4 py-1.5 md:py-2 bg-[#861F41] hover:bg-[#6b1835] rounded-lg transition-colors text-xs md:text-base justify-center"
                   title="Export filtered data to CSV"
                 >
                   <Download className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -1939,7 +1939,7 @@ function App() {
           <div className="flex-1 px-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <img src="/logo.png" alt="Logo" className="w-9 h-9" />
-              <h1 className="text-lg md:text-xl font-bold" style={{ color: '#bedbed' }}>
+              <h1 className="text-lg md:text-xl font-bold" style={{ color: '#E5751F' }}>
                 Option Flow
               </h1>
               <SentimentGauge value={displaySentimentValue} />
@@ -1958,7 +1958,7 @@ function App() {
           <div className="w-96 px-6 flex items-center gap-2">
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-1.5 px-3 py-2.5 bg-blue-600 hover:bg-blue-700 rounded font-semibold text-sm transition-colors justify-center flex-1"
+              className="flex items-center gap-1.5 px-3 py-2.5 bg-[#861F41] hover:bg-[#6b1835] rounded font-semibold text-sm transition-colors justify-center flex-1"
               title="Export filtered data to CSV"
             >
               <Download className="w-4 h-4" />
@@ -1966,7 +1966,7 @@ function App() {
             </button>
             {user && user.role === 'admin' && (
               <button onClick={() => { setShowAdminPanel(true); fetch('/api/stats', { headers: authHeaders() }).then(r => r.json()).then(setAdminStats).catch(() => {}); }}
-                className="flex items-center gap-1 px-3 py-2.5 bg-purple-600 hover:bg-purple-700 rounded font-semibold text-sm transition-colors"
+                className="flex items-center gap-1 px-3 py-2.5 bg-[#861F41] hover:bg-[#6b1835] rounded font-semibold text-sm transition-colors"
                 title="Admin Panel">
                 <Shield className="w-4 h-4" />
               </button>
@@ -1979,7 +1979,7 @@ function App() {
               </button>
             ) : (
               <button onClick={() => setShowAuthOverlay(true)}
-                className="flex items-center gap-1 px-3 py-2.5 bg-green-600 hover:bg-green-700 rounded font-semibold text-sm transition-colors">
+                className="flex items-center gap-1 px-3 py-2.5 bg-[#861F41] hover:bg-[#6b1835] rounded font-semibold text-sm transition-colors">
                 <LogIn className="w-4 h-4" />
                 <span>Login</span>
               </button>
@@ -1990,11 +1990,11 @@ function App() {
 
       <div className="flex flex-col xl:flex-row">
         <div className="flex-1 p-3 md:p-6 pb-20 xl:pb-6">
-          <div ref={tableRef} className="bg-[#0a0d2e] rounded-lg overflow-hidden border border-gray-800" style={{ height: 'calc(100vh - 120px)' }}>
+          <div ref={tableRef} className="bg-[#2d1118] rounded-lg overflow-hidden border border-gray-800" style={{ height: 'calc(100vh - 120px)' }}>
             {/* Desktop Table View with Virtual Scrolling */}
             <div className="hidden lg:block h-full">
               <table className="w-full" style={{ tableLayout: 'fixed', minWidth: '700px' }}>
-                <thead className="bg-[#0f1435] border-b border-gray-800">
+                <thead className="bg-[#3d1a22] border-b border-gray-800">
                   <tr style={{ height: '36px', lineHeight: '1.2em' }}>
                     <th className="text-left text-sm font-semibold text-gray-400" style={{ width: '70px', padding: '0.2em 1em', verticalAlign: 'middle' }}>Time</th>
                     <th className="text-left text-sm font-semibold text-gray-400" style={{ width: '70px', padding: '0.2em 1em', verticalAlign: 'middle' }}>Symbol</th>
@@ -2037,15 +2037,15 @@ function App() {
 
         {/* Right Sidebar - Desktop */}
         <div className="hidden xl:block w-96 p-6">
-          <div className="bg-[#0a0d2e] border border-gray-800 rounded-lg overflow-y-auto" style={{ height: 'calc(100vh - 120px)' }}>
+          <div className="bg-[#2d1118] border border-gray-800 rounded-lg overflow-y-auto" style={{ height: 'calc(100vh - 120px)' }}>
           {/* Top-level tabs: Filters / Lists - Apple Style Segmented Control */}
           <div className="p-4 border-b border-gray-800">
-            <div className="bg-[#0f1435] p-1 rounded-lg inline-flex w-full">
+            <div className="bg-[#3d1a22] p-1 rounded-lg inline-flex w-full">
               <button
                 onClick={() => setSidebarTab('filters')}
                 className={`flex-1 px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 ${
                   sidebarTab === 'filters'
-                    ? 'bg-blue-600 text-white shadow-lg'
+                    ? 'bg-[#861F41] text-white shadow-lg'
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
@@ -2055,7 +2055,7 @@ function App() {
                 onClick={() => setSidebarTab('lists')}
                 className={`flex-1 px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 ${
                   sidebarTab === 'lists'
-                    ? 'bg-blue-600 text-white shadow-lg'
+                    ? 'bg-[#861F41] text-white shadow-lg'
                     : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
@@ -2073,7 +2073,7 @@ function App() {
               onClick={() => setActiveTab('current')}
               className={`px-3 py-2.5 rounded font-semibold text-sm transition-colors text-center ${
                 activeTab === 'current'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-[#861F41] text-white'
                   : 'bg-transparent border border-gray-700 text-gray-300'
               }`}
             >
@@ -2083,7 +2083,7 @@ function App() {
               onClick={() => setActiveTab('saved')}
               className={`px-3 py-2.5 rounded font-semibold text-sm transition-colors text-center ${
                 activeTab === 'saved'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-[#861F41] text-white'
                   : 'bg-transparent border border-gray-700 text-gray-300'
               }`}
             >
@@ -2097,7 +2097,7 @@ function App() {
                 <button
                   key={index}
                   onClick={() => applyPresetFilter(preset)}
-                  className="w-full bg-[#0f1435] border border-gray-700 hover:border-gray-600 rounded p-3 text-left transition-colors group"
+                  className="w-full bg-[#3d1a22] border border-gray-700 hover:border-gray-600 rounded p-3 text-left transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
                     <div
@@ -2128,7 +2128,7 @@ function App() {
                     <span
                       key={ticker}
                       onClick={() => removeTicker(ticker)}
-                      className="inline-flex items-center gap-1 bg-blue-600 hover:bg-red-600 text-white px-2 py-0.5 rounded-full text-xs font-semibold cursor-pointer transition-all group"
+                      className="inline-flex items-center gap-1 bg-[#861F41] hover:bg-red-600 text-white px-2 py-0.5 rounded-full text-xs font-semibold cursor-pointer transition-all group"
                     >
                       <span className="group-hover:line-through">{ticker}</span>
                       <button
@@ -2150,7 +2150,7 @@ function App() {
                 <input
                   type="text"
                   placeholder="Add a ticker"
-                  className="w-full bg-[#0f1435] border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
+                  className="w-full bg-[#3d1a22] border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#E5751F] placeholder:text-gray-500"
                   value={tickerInput}
                   onChange={handleTickerInputChange}
                   onKeyDown={handleTickerKeyDown}
@@ -2158,15 +2158,15 @@ function App() {
 
                 {/* Suggestions dropdown */}
                 {tickerSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-[#0f1435] border border-gray-700 rounded max-h-40 overflow-y-auto shadow-lg">
+                  <div className="absolute z-10 w-full mt-1 bg-[#3d1a22] border border-gray-700 rounded max-h-40 overflow-y-auto shadow-lg">
                     {tickerSuggestions.map((ticker, index) => (
                       <button
                         key={ticker}
                         onClick={() => addTicker(ticker)}
                         className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                           index === selectedSuggestionIndex
-                            ? 'bg-blue-600 text-white'
-                            : 'hover:bg-blue-600/50'
+                            ? 'bg-[#861F41] text-white'
+                            : 'hover:bg-[#861F41]/50'
                         }`}
                       >
                         {ticker}
@@ -2228,7 +2228,7 @@ function App() {
                     placeholderText="Select start"
                     isClearable
                     popperPlacement="bottom"
-                    className="w-full bg-[#0f1435] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500 text-white"
+                    className="w-full bg-[#3d1a22] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-[#E5751F] text-white"
                   />
                 </div>
                 <div>
@@ -2244,7 +2244,7 @@ function App() {
                     placeholderText="Select end"
                     isClearable
                     popperPlacement="bottom"
-                    className="w-full bg-[#0f1435] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500 text-white"
+                    className="w-full bg-[#3d1a22] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-[#E5751F] text-white"
                   />
                 </div>
               </div>
@@ -2270,7 +2270,7 @@ function App() {
                   title={sentimentMap[sentiment].label}
                 >
                   {filters.sentiment[key] && (
-                    <span className="absolute top-0.5 right-0.5 text-green-400 text-xs">✓</span>
+                    <span className="absolute top-0.5 right-0.5 text-[#E5751F] text-xs">✓</span>
                   )}
                   <div className="flex justify-center">
                     {sentimentMap[sentiment].icon}
@@ -2291,7 +2291,7 @@ function App() {
                   onClick={() => setFilters(prev => ({ ...prev, timeRange: prev.timeRange === key ? null : key }))}
                   className={`py-2.5 px-3 text-xs font-semibold rounded border transition-all text-center ${
                     filters.timeRange === key
-                      ? 'bg-blue-900/30 border-blue-600 text-blue-300'
+                      ? 'bg-blue-900/30 border-blue-600 text-[#E5751F]'
                       : 'bg-gray-800/40 border-gray-700 text-gray-400'
                   }`}
                 >
@@ -2392,7 +2392,7 @@ function App() {
                       type="checkbox"
                       checked={filters[key]}
                       onChange={() => toggleFilter(null, key)}
-                      className="w-5 h-5 appearance-none rounded border-2 border-blue-500 bg-[#0f1435] cursor-pointer checked:bg-blue-500 checked:border-blue-500 transition-colors"
+                      className="w-5 h-5 appearance-none rounded border-2 border-[#E5751F] bg-[#3d1a22] cursor-pointer checked:bg-[#E5751F] checked:border-[#E5751F] transition-colors"
                     />
                     {filters[key] && (
                       <svg className="absolute top-0.5 left-0.5 w-4 h-4 text-white pointer-events-none" viewBox="0 0 16 16" fill="none">
@@ -2410,7 +2410,7 @@ function App() {
                 <label className="block text-xs text-gray-400 mb-1.5">Price was</label>
                 <div className="flex items-center gap-1.5">
                   <select
-                    className="flex-1 bg-[#0f1435] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500"
+                    className="flex-1 bg-[#3d1a22] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-[#E5751F]"
                     value={filters.priceOperator}
                     onChange={(e) => setFilters({...filters, priceOperator: e.target.value})}
                   >
@@ -2421,7 +2421,7 @@ function App() {
                   <input
                     type="text"
                     placeholder="0"
-                    className="w-20 bg-[#0f1435] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500"
+                    className="w-20 bg-[#3d1a22] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-[#E5751F]"
                     value={filters.priceValue}
                     onChange={(e) => setFilters({...filters, priceValue: e.target.value})}
                   />
@@ -2431,7 +2431,7 @@ function App() {
                 <label className="block text-xs text-gray-400 mb-1.5">Chance was</label>
                 <div className="flex items-center gap-1.5">
                   <select
-                    className="flex-1 bg-[#0f1435] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500"
+                    className="flex-1 bg-[#3d1a22] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-[#E5751F]"
                     value={filters.chanceOperator}
                     onChange={(e) => setFilters({...filters, chanceOperator: e.target.value})}
                   >
@@ -2441,7 +2441,7 @@ function App() {
                   <input
                     type="text"
                     placeholder="0"
-                    className="w-20 bg-[#0f1435] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500"
+                    className="w-20 bg-[#3d1a22] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-[#E5751F]"
                     value={filters.chanceValue}
                     onChange={(e) => setFilters({...filters, chanceValue: e.target.value})}
                   />
@@ -2509,7 +2509,7 @@ function App() {
               <div className="flex items-center justify-between">
                 <div className="relative flex-1" ref={listMenuRef}>
                   <button
-                    className="text-gray-200 font-medium text-base hover:text-blue-400 transition-colors flex items-center gap-1"
+                    className="text-gray-200 font-medium text-base hover:text-[#E5751F] transition-colors flex items-center gap-1"
                     onClick={() => setIsListMenuOpen(!isListMenuOpen)}
                     title="Manage lists"
                   >
@@ -2521,7 +2521,7 @@ function App() {
 
                   {/* Dropdown Menu */}
                   {isListMenuOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-48 bg-[#0f1435] border border-gray-700 rounded-lg shadow-lg z-20 overflow-hidden">
+                    <div className="absolute top-full left-0 mt-1 w-48 bg-[#3d1a22] border border-gray-700 rounded-lg shadow-lg z-20 overflow-hidden">
                       <button
                         onClick={() => {
                           setNewListNameInput(activeList.name);
@@ -2561,7 +2561,7 @@ function App() {
 
                 <button
                   onClick={() => setIsAddTickerModalOpen(true)}
-                  className="text-gray-400 hover:text-blue-400 transition-colors"
+                  className="text-gray-400 hover:text-[#E5751F] transition-colors"
                   title="Add ticker"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2581,8 +2581,8 @@ function App() {
                         onClick={() => setActiveListId(list.id)}
                         className={`w-7 h-7 rounded text-xs font-semibold transition-all ${
                           list.id === activeListId
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-[#0f1435] text-gray-400 hover:text-gray-200 hover:bg-[#1a1f4a]'
+                            ? 'bg-[#861F41] text-white'
+                            : 'bg-[#3d1a22] text-gray-400 hover:text-gray-200 hover:bg-[#1a1f4a]'
                         }`}
                         title={list.name}
                       >
@@ -2606,7 +2606,7 @@ function App() {
                     <div key={ticker} className="relative">
                       {/* Drop indicator line */}
                       {dragOverIndex === index && draggedTickerIndex !== index && (
-                        <div className="absolute -top-0.5 left-0 right-0 h-0.5 bg-blue-500 z-10" />
+                        <div className="absolute -top-0.5 left-0 right-0 h-0.5 bg-[#E5751F] z-10" />
                       )}
 
                       <div
@@ -2616,10 +2616,10 @@ function App() {
                         onDragLeave={handleDragLeave}
                         onDrop={(e) => handleDrop(e, index)}
                         onDragEnd={handleDragEnd}
-                        className={`bg-[#0f1435] border rounded px-3 py-2 flex items-center gap-2 transition-all group cursor-move ${
+                        className={`bg-[#3d1a22] border rounded px-3 py-2 flex items-center gap-2 transition-all group cursor-move ${
                           draggedTickerIndex === index
                             ? 'opacity-40'
-                            : 'border-gray-700 hover:border-blue-500'
+                            : 'border-gray-700 hover:border-[#E5751F]'
                         }`}
                       >
                         {/* Drag Handle */}
@@ -2628,7 +2628,7 @@ function App() {
                         </svg>
 
                         <span
-                          className="text-gray-200 text-sm font-medium group-hover:text-blue-400 transition-colors flex-1 cursor-pointer"
+                          className="text-gray-200 text-sm font-medium group-hover:text-[#E5751F] transition-colors flex-1 cursor-pointer"
                           onClick={() => handleTickerClick(ticker)}
                         >
                           {ticker}
@@ -2647,7 +2647,7 @@ function App() {
 
                       {/* Drop indicator line at bottom for last item */}
                       {dragOverIndex === index && draggedTickerIndex !== null && draggedTickerIndex < index && index === activeList.tickers.length - 1 && (
-                        <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-blue-500 z-10" />
+                        <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#E5751F] z-10" />
                       )}
                     </div>
                   ))}
@@ -2668,10 +2668,10 @@ function App() {
           ></div>
 
           {/* Drawer */}
-          <div className={`absolute bottom-0 left-0 right-0 bg-[#0a0d2e] border-t border-gray-800 rounded-t-2xl transition-transform duration-300 ${isFilterDrawerOpen ? 'translate-y-0' : 'translate-y-full'}`}
+          <div className={`absolute bottom-0 left-0 right-0 bg-[#2d1118] border-t border-gray-800 rounded-t-2xl transition-transform duration-300 ${isFilterDrawerOpen ? 'translate-y-0' : 'translate-y-full'}`}
                style={{ maxHeight: '85vh' }}>
             {/* Drawer Handle */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 sticky top-0 bg-[#0a0d2e] z-10">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 sticky top-0 bg-[#2d1118] z-10">
               <h2 className="text-lg font-semibold text-white">{sidebarTab === 'filters' ? 'Filters' : 'Lists'}</h2>
               <button
                 onClick={() => setIsFilterDrawerOpen(false)}
@@ -2684,13 +2684,13 @@ function App() {
             {/* Scrollable Filter Content */}
             <div className="overflow-y-auto" style={{ maxHeight: 'calc(85vh - 60px)' }}>
               {/* Top-level tabs: Filters / Lists - Apple Style Segmented Control */}
-              <div className="p-4 border-b border-gray-800 sticky top-0 bg-[#0a0d2e] z-10">
-                <div className="bg-[#0f1435] p-1 rounded-lg inline-flex w-full">
+              <div className="p-4 border-b border-gray-800 sticky top-0 bg-[#2d1118] z-10">
+                <div className="bg-[#3d1a22] p-1 rounded-lg inline-flex w-full">
                   <button
                     onClick={() => setSidebarTab('filters')}
                     className={`flex-1 px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 ${
                       sidebarTab === 'filters'
-                        ? 'bg-blue-600 text-white shadow-lg'
+                        ? 'bg-[#861F41] text-white shadow-lg'
                         : 'text-gray-400 hover:text-gray-300'
                     }`}
                   >
@@ -2700,7 +2700,7 @@ function App() {
                     onClick={() => setSidebarTab('lists')}
                     className={`flex-1 px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 ${
                       sidebarTab === 'lists'
-                        ? 'bg-blue-600 text-white shadow-lg'
+                        ? 'bg-[#861F41] text-white shadow-lg'
                         : 'text-gray-400 hover:text-gray-300'
                     }`}
                   >
@@ -2718,7 +2718,7 @@ function App() {
                   onClick={() => setActiveTab('current')}
                   className={`px-3 py-2.5 rounded font-semibold text-sm transition-colors text-center ${
                     activeTab === 'current'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-[#861F41] text-white'
                       : 'bg-transparent border border-gray-700 text-gray-300'
                   }`}
                 >
@@ -2728,7 +2728,7 @@ function App() {
                   onClick={() => setActiveTab('saved')}
                   className={`px-3 py-2.5 rounded font-semibold text-sm transition-colors text-center ${
                     activeTab === 'saved'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-[#861F41] text-white'
                       : 'bg-transparent border border-gray-700 text-gray-300'
                   }`}
                 >
@@ -2745,7 +2745,7 @@ function App() {
                         applyPresetFilter(preset);
                         setIsFilterDrawerOpen(false);
                       }}
-                      className="w-full bg-[#0f1435] border border-gray-700 hover:border-gray-600 rounded p-3 text-left transition-colors group"
+                      className="w-full bg-[#3d1a22] border border-gray-700 hover:border-gray-600 rounded p-3 text-left transition-colors group"
                     >
                       <div className="flex items-center space-x-3">
                         <div
@@ -2776,7 +2776,7 @@ function App() {
                           <span
                             key={ticker}
                             onClick={() => removeTicker(ticker)}
-                            className="inline-flex items-center gap-1 bg-blue-600 hover:bg-red-600 text-white px-2 py-0.5 rounded-full text-xs font-semibold cursor-pointer transition-all group"
+                            className="inline-flex items-center gap-1 bg-[#861F41] hover:bg-red-600 text-white px-2 py-0.5 rounded-full text-xs font-semibold cursor-pointer transition-all group"
                           >
                             <span className="group-hover:line-through">{ticker}</span>
                             <button
@@ -2798,7 +2798,7 @@ function App() {
                       <input
                         type="text"
                         placeholder="Add a ticker"
-                        className="w-full bg-[#0f1435] border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 placeholder:text-gray-500"
+                        className="w-full bg-[#3d1a22] border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#E5751F] placeholder:text-gray-500"
                         value={tickerInput}
                         onChange={handleTickerInputChange}
                         onKeyDown={handleTickerKeyDown}
@@ -2806,15 +2806,15 @@ function App() {
 
                       {/* Suggestions dropdown */}
                       {tickerSuggestions.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-[#0f1435] border border-gray-700 rounded max-h-40 overflow-y-auto shadow-lg">
+                        <div className="absolute z-10 w-full mt-1 bg-[#3d1a22] border border-gray-700 rounded max-h-40 overflow-y-auto shadow-lg">
                           {tickerSuggestions.map((ticker, index) => (
                             <button
                               key={ticker}
                               onClick={() => addTicker(ticker)}
                               className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                                 index === selectedSuggestionIndex
-                                  ? 'bg-blue-600 text-white'
-                                  : 'hover:bg-blue-600/50'
+                                  ? 'bg-[#861F41] text-white'
+                                  : 'hover:bg-[#861F41]/50'
                               }`}
                             >
                               {ticker}
@@ -2876,7 +2876,7 @@ function App() {
                           placeholderText="Select start"
                           isClearable
                           popperPlacement="bottom"
-                          className="w-full bg-[#0f1435] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500 text-white"
+                          className="w-full bg-[#3d1a22] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-[#E5751F] text-white"
                         />
                       </div>
                       <div>
@@ -2892,7 +2892,7 @@ function App() {
                           placeholderText="Select end"
                           isClearable
                           popperPlacement="bottom"
-                          className="w-full bg-[#0f1435] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500 text-white"
+                          className="w-full bg-[#3d1a22] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-[#E5751F] text-white"
                         />
                       </div>
                     </div>
@@ -2918,7 +2918,7 @@ function App() {
                         title={sentimentMap[sentiment].label}
                       >
                         {filters.sentiment[key] && (
-                          <span className="absolute top-0.5 right-0.5 text-green-400 text-xs">✓</span>
+                          <span className="absolute top-0.5 right-0.5 text-[#E5751F] text-xs">✓</span>
                         )}
                         <div className="flex justify-center">
                           {sentimentMap[sentiment].icon}
@@ -2939,7 +2939,7 @@ function App() {
                         onClick={() => setFilters(prev => ({ ...prev, timeRange: prev.timeRange === key ? null : key }))}
                         className={`py-2.5 px-3 text-xs font-semibold rounded border transition-all text-center ${
                           filters.timeRange === key
-                            ? 'bg-blue-900/30 border-blue-600 text-blue-300'
+                            ? 'bg-blue-900/30 border-blue-600 text-[#E5751F]'
                             : 'bg-gray-800/40 border-gray-700 text-gray-400'
                         }`}
                       >
@@ -3040,7 +3040,7 @@ function App() {
                             type="checkbox"
                             checked={filters[key]}
                             onChange={() => toggleFilter(null, key)}
-                            className="w-5 h-5 appearance-none rounded border-2 border-blue-500 bg-[#0f1435] cursor-pointer checked:bg-blue-500 checked:border-blue-500 transition-colors"
+                            className="w-5 h-5 appearance-none rounded border-2 border-[#E5751F] bg-[#3d1a22] cursor-pointer checked:bg-[#E5751F] checked:border-[#E5751F] transition-colors"
                           />
                           {filters[key] && (
                             <svg className="absolute top-0.5 left-0.5 w-4 h-4 text-white pointer-events-none" viewBox="0 0 16 16" fill="none">
@@ -3058,7 +3058,7 @@ function App() {
                       <label className="block text-xs text-gray-400 mb-1.5">Price was</label>
                       <div className="flex items-center gap-1.5">
                         <select
-                          className="flex-1 bg-[#0f1435] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500"
+                          className="flex-1 bg-[#3d1a22] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-[#E5751F]"
                           value={filters.priceOperator}
                           onChange={(e) => setFilters({...filters, priceOperator: e.target.value})}
                         >
@@ -3069,7 +3069,7 @@ function App() {
                         <input
                           type="text"
                           placeholder="0"
-                          className="w-20 bg-[#0f1435] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500"
+                          className="w-20 bg-[#3d1a22] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-[#E5751F]"
                           value={filters.priceValue}
                           onChange={(e) => setFilters({...filters, priceValue: e.target.value})}
                         />
@@ -3079,7 +3079,7 @@ function App() {
                       <label className="block text-xs text-gray-400 mb-1.5">Chance was</label>
                       <div className="flex items-center gap-1.5">
                         <select
-                          className="flex-1 bg-[#0f1435] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500"
+                          className="flex-1 bg-[#3d1a22] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-[#E5751F]"
                           value={filters.chanceOperator}
                           onChange={(e) => setFilters({...filters, chanceOperator: e.target.value})}
                         >
@@ -3089,7 +3089,7 @@ function App() {
                         <input
                           type="text"
                           placeholder="0"
-                          className="w-20 bg-[#0f1435] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500"
+                          className="w-20 bg-[#3d1a22] border border-gray-700 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-[#E5751F]"
                           value={filters.chanceValue}
                           onChange={(e) => setFilters({...filters, chanceValue: e.target.value})}
                         />
@@ -3157,7 +3157,7 @@ function App() {
                   <div className="flex items-center justify-between">
                     <div className="relative flex-1">
                       <button
-                        className="text-gray-200 font-medium text-base active:text-blue-400 transition-colors flex items-center gap-1"
+                        className="text-gray-200 font-medium text-base active:text-[#E5751F] transition-colors flex items-center gap-1"
                         onClick={() => setIsListMenuOpen(!isListMenuOpen)}
                       >
                         {activeList.name}
@@ -3168,7 +3168,7 @@ function App() {
 
                       {/* Dropdown Menu */}
                       {isListMenuOpen && (
-                        <div className="absolute top-full left-0 mt-1 w-48 bg-[#0f1435] border border-gray-700 rounded-lg shadow-lg z-20 overflow-hidden">
+                        <div className="absolute top-full left-0 mt-1 w-48 bg-[#3d1a22] border border-gray-700 rounded-lg shadow-lg z-20 overflow-hidden">
                           <button
                             onClick={() => {
                               setNewListNameInput(activeList.name);
@@ -3208,7 +3208,7 @@ function App() {
 
                     <button
                       onClick={() => setIsAddTickerModalOpen(true)}
-                      className="text-gray-400 active:text-blue-400 transition-colors p-1"
+                      className="text-gray-400 active:text-[#E5751F] transition-colors p-1"
                       title="Add ticker"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3228,8 +3228,8 @@ function App() {
                             onClick={() => setActiveListId(list.id)}
                             className={`w-8 h-8 rounded text-sm font-semibold transition-all ${
                               list.id === activeListId
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-[#0f1435] text-gray-400 active:bg-[#1a1f4a]'
+                                ? 'bg-[#861F41] text-white'
+                                : 'bg-[#3d1a22] text-gray-400 active:bg-[#1a1f4a]'
                             }`}
                             title={list.name}
                           >
@@ -3253,7 +3253,7 @@ function App() {
                         <div key={ticker} className="relative">
                           {/* Drop indicator line */}
                           {dragOverIndex === index && draggedTickerIndex !== index && (
-                            <div className="absolute -top-0.5 left-0 right-0 h-0.5 bg-blue-500 z-10" />
+                            <div className="absolute -top-0.5 left-0 right-0 h-0.5 bg-[#E5751F] z-10" />
                           )}
 
                           <div
@@ -3263,10 +3263,10 @@ function App() {
                             onDragLeave={handleDragLeave}
                             onDrop={(e) => handleDrop(e, index)}
                             onDragEnd={handleDragEnd}
-                            className={`bg-[#0f1435] border rounded px-3 py-2.5 flex items-center gap-2 transition-all group ${
+                            className={`bg-[#3d1a22] border rounded px-3 py-2.5 flex items-center gap-2 transition-all group ${
                               draggedTickerIndex === index
                                 ? 'opacity-40'
-                                : 'border-gray-700 active:border-blue-500'
+                                : 'border-gray-700 active:border-[#E5751F]'
                             }`}
                           >
                             {/* Drag Handle */}
@@ -3297,7 +3297,7 @@ function App() {
 
                           {/* Drop indicator line at bottom for last item */}
                           {dragOverIndex === index && draggedTickerIndex !== null && draggedTickerIndex < index && index === activeList.tickers.length - 1 && (
-                            <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-blue-500 z-10" />
+                            <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#E5751F] z-10" />
                           )}
                         </div>
                       ))}
@@ -3314,7 +3314,7 @@ function App() {
       {/* Mobile/Tablet Floating Menu Button */}
       <button
         onClick={() => setIsFilterDrawerOpen(true)}
-        className="xl:hidden fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg flex items-center justify-center transition-all z-40"
+        className="xl:hidden fixed bottom-6 right-6 w-14 h-14 bg-[#861F41] hover:bg-[#6b1835] rounded-full shadow-lg flex items-center justify-center transition-all z-40"
       >
         <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -3333,7 +3333,7 @@ function App() {
           ></div>
 
           {/* Modal */}
-          <div className="relative bg-[#0a0d2e] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
+          <div className="relative bg-[#2d1118] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Add Ticker to List</h3>
               <button
@@ -3349,7 +3349,7 @@ function App() {
                 <input
                   type="text"
                   placeholder="Enter ticker symbol (e.g., AAPL)"
-                  className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 placeholder:text-gray-500 text-white"
+                  className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] placeholder:text-gray-500 text-white"
                   value={newTickerInput}
                   onChange={handleListTickerInputChange}
                   onKeyDown={handleListTickerKeyDown}
@@ -3358,15 +3358,15 @@ function App() {
 
                 {/* Suggestions dropdown */}
                 {listTickerSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-[#0f1435] border border-gray-700 rounded max-h-40 overflow-y-auto shadow-lg">
+                  <div className="absolute z-10 w-full mt-1 bg-[#3d1a22] border border-gray-700 rounded max-h-40 overflow-y-auto shadow-lg">
                     {listTickerSuggestions.map((ticker, index) => (
                       <button
                         key={ticker}
                         onClick={() => handleAddTickerSubmit(ticker)}
                         className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                           index === listSelectedSuggestionIndex
-                            ? 'bg-blue-600 text-white'
-                            : 'text-white hover:bg-blue-600/50'
+                            ? 'bg-[#861F41] text-white'
+                            : 'text-white hover:bg-[#861F41]/50'
                         }`}
                       >
                         {ticker}
@@ -3385,7 +3385,7 @@ function App() {
                 </button>
                 <button
                   onClick={() => handleAddTickerSubmit()}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded font-semibold text-sm transition-colors"
+                  className="flex-1 bg-[#861F41] hover:bg-[#6b1835] text-white py-2.5 rounded font-semibold text-sm transition-colors"
                 >
                   Add
                 </button>
@@ -3403,7 +3403,7 @@ function App() {
             onClick={() => setIsAddListModalOpen(false)}
           ></div>
 
-          <div className="relative bg-[#0a0d2e] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
+          <div className="relative bg-[#2d1118] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Create New List</h3>
               <button
@@ -3418,7 +3418,7 @@ function App() {
               <input
                 type="text"
                 placeholder="Enter list name (e.g., Position List)"
-                className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 placeholder:text-gray-500 text-white"
+                className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] placeholder:text-gray-500 text-white"
                 value={newListNameInput}
                 onChange={(e) => setNewListNameInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -3440,7 +3440,7 @@ function App() {
                 </button>
                 <button
                   onClick={handleAddListSubmit}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded font-semibold text-sm transition-colors"
+                  className="flex-1 bg-[#861F41] hover:bg-[#6b1835] text-white py-2.5 rounded font-semibold text-sm transition-colors"
                 >
                   Create
                 </button>
@@ -3458,7 +3458,7 @@ function App() {
             onClick={() => setIsRenameListModalOpen(false)}
           ></div>
 
-          <div className="relative bg-[#0a0d2e] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
+          <div className="relative bg-[#2d1118] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Rename List</h3>
               <button
@@ -3473,7 +3473,7 @@ function App() {
               <input
                 type="text"
                 placeholder="Enter new list name"
-                className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 placeholder:text-gray-500 text-white"
+                className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] placeholder:text-gray-500 text-white"
                 value={newListNameInput}
                 onChange={(e) => setNewListNameInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -3495,7 +3495,7 @@ function App() {
                 </button>
                 <button
                   onClick={handleRenameListSubmit}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded font-semibold text-sm transition-colors"
+                  className="flex-1 bg-[#861F41] hover:bg-[#6b1835] text-white py-2.5 rounded font-semibold text-sm transition-colors"
                 >
                   Rename
                 </button>
@@ -3508,7 +3508,7 @@ function App() {
       {showAuthOverlay && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAuthOverlay(false)}></div>
-          <div className="relative bg-[#0a0d2e] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
+          <div className="relative bg-[#2d1118] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                 <User className="w-5 h-5" />
@@ -3521,24 +3521,24 @@ function App() {
               {authMode === 'register' && (
                 <input type="text" placeholder="Name" value={authForm.name}
                   onChange={e => setAuthForm(f => ({...f, name: e.target.value}))}
-                  className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-500" />
+                  className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
               )}
               <input type="email" placeholder="Email" required value={authForm.email}
                 onChange={e => setAuthForm(f => ({...f, email: e.target.value}))}
-                className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-500" />
+                className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
               <input type="password" placeholder="Password" required value={authForm.password}
                 onChange={e => setAuthForm(f => ({...f, password: e.target.value}))}
-                className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-500" />
+                className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
               <button type="submit" disabled={authLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-3 rounded font-semibold text-sm transition-colors">
+                className="w-full bg-[#861F41] hover:bg-[#6b1835] disabled:bg-gray-600 text-white py-3 rounded font-semibold text-sm transition-colors">
                 {authLoading ? 'Loading...' : (authMode === 'login' ? 'Log In' : 'Create Account')}
               </button>
             </form>
             <div className="mt-4 text-center text-sm text-gray-400">
               {authMode === 'login' ? (
-                <>Don't have an account? <button onClick={() => { setAuthMode('register'); setAuthError(''); }} className="text-blue-400 hover:underline">Sign up</button></>
+                <>Don't have an account? <button onClick={() => { setAuthMode('register'); setAuthError(''); }} className="text-[#E5751F] hover:underline">Sign up</button></>
               ) : (
-                <>Already have an account? <button onClick={() => { setAuthMode('login'); setAuthError(''); }} className="text-blue-400 hover:underline">Log in</button></>
+                <>Already have an account? <button onClick={() => { setAuthMode('login'); setAuthError(''); }} className="text-[#E5751F] hover:underline">Log in</button></>
               )}
             </div>
           </div>
@@ -3549,33 +3549,33 @@ function App() {
       {showAdminPanel && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAdminPanel(false)}></div>
-          <div className="relative bg-[#0a0d2e] border border-gray-700 rounded-lg p-6 w-full max-w-lg mx-4">
+          <div className="relative bg-[#2d1118] border border-gray-700 rounded-lg p-6 w-full max-w-lg mx-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Shield className="w-5 h-5 text-purple-400" /> Admin Dashboard
+                <Shield className="w-5 h-5 text-[#E5751F]" /> Admin Dashboard
               </h3>
               <button onClick={() => setShowAdminPanel(false)} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
             </div>
             {adminStats ? (
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-[#0f1435] rounded-lg p-4 border border-gray-700">
+                <div className="bg-[#3d1a22] rounded-lg p-4 border border-gray-700">
                   <div className="text-gray-400 text-xs uppercase mb-1">Total Flow Events</div>
                   <div className="text-2xl font-bold text-white">{adminStats.totalFlows?.toLocaleString()}</div>
                 </div>
-                <div className="bg-[#0f1435] rounded-lg p-4 border border-gray-700">
+                <div className="bg-[#3d1a22] rounded-lg p-4 border border-gray-700">
                   <div className="text-gray-400 text-xs uppercase mb-1">Unique Symbols</div>
                   <div className="text-2xl font-bold text-white">{adminStats.uniqueSymbols?.toLocaleString()}</div>
                 </div>
-                <div className="bg-[#0f1435] rounded-lg p-4 border border-gray-700">
+                <div className="bg-[#3d1a22] rounded-lg p-4 border border-gray-700">
                   <div className="text-gray-400 text-xs uppercase mb-1">Registered Users</div>
                   <div className="text-2xl font-bold text-white">{adminStats.totalUsers}</div>
                 </div>
-                <div className="bg-[#0f1435] rounded-lg p-4 border border-gray-700">
+                <div className="bg-[#3d1a22] rounded-lg p-4 border border-gray-700">
                   <div className="text-gray-400 text-xs uppercase mb-1">Watchlists</div>
                   <div className="text-2xl font-bold text-white">{adminStats.totalWatchlists}</div>
                 </div>
                 {adminStats.dateRange && (
-                  <div className="col-span-2 bg-[#0f1435] rounded-lg p-4 border border-gray-700">
+                  <div className="col-span-2 bg-[#3d1a22] rounded-lg p-4 border border-gray-700">
                     <div className="text-gray-400 text-xs uppercase mb-1">Data Range</div>
                     <div className="text-sm text-white">
                       {new Date(adminStats.dateRange.from).toLocaleDateString()} — {new Date(adminStats.dateRange.to).toLocaleDateString()}
