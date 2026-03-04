@@ -1820,7 +1820,7 @@ function App() {
       <div className="min-h-screen bg-[#1a0a11] text-gray-100 flex items-center justify-center">
         <div className="w-full max-w-md mx-4">
           <div className="text-center mb-8">
-            <img src="/vt-logo.svg" alt="Virginia Tech" className="w-20 h-20 mx-auto mb-4" />
+            <img src="/vt-logo.svg" alt="Virginia Tech" className="w-48 mx-auto mb-4" />
             <h1 className="text-2xl font-bold" style={{ color: '#E5751F' }}>Options Flow Tracker</h1>
             <p className="text-gray-400 text-sm mt-2">CS 4604 - Database Management Systems</p>
           </div>
@@ -1867,7 +1867,7 @@ function App() {
         <div className="fixed inset-0 bg-[#1a0a11] z-50 flex flex-col items-center justify-center">
           <div className="flex flex-col items-center gap-6">
             {/* Logo */}
-            <img src="/vt-logo.svg" alt="Virginia Tech" className="w-20 h-20 animate-pulse" />
+            <img src="/vt-logo.svg" alt="Virginia Tech" className="w-40 animate-pulse" />
 
             {/* Loading Text */}
             <div className="text-center">
