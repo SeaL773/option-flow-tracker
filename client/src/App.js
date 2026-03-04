@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { X, Calendar, XCircle, Download } from 'lucide-react';
+import { X, Calendar, XCircle, Download, LogIn, LogOut, User, Shield, BarChart3 } from 'lucide-react';
 import { FixedSizeList } from 'react-window';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -216,6 +216,22 @@ function App() {
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
+
+  // Auth states
+  const [user, setUser] = useState(null);
+  const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
+  const [showAuthOverlay, setShowAuthOverlay] = useState(false);
+  const [authMode, setAuthMode] = useState('login');
+  const [authForm, setAuthForm] = useState({ email: '', password: '', name: '' });
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+
+  // Admin panel state
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [adminStats, setAdminStats] = useState(null);
+
+  // Auth helper
+  const authHeaders = useCallback(() => authToken ? { Authorization: 'Bearer ' + authToken } : {}, [authToken]);
 
   // Watchlist states
   const [sidebarTab, setSidebarTab] = useState('filters'); // 'filters' or 'lists'
@@ -509,84 +525,85 @@ function App() {
     loadData();
   }, []);
 
-  // Load lists from localStorage on mount
+  // Load watchlists from API when user is logged in
   useEffect(() => {
-    const savedLists = localStorage.getItem('optionsflow_lists');
-    const savedActiveListId = localStorage.getItem('optionsflow_activeListId');
-    if (savedLists) {
-      try {
-        const parsed = JSON.parse(savedLists);
-        if (parsed.length > 0) {
-          setLists(parsed);
-          if (savedActiveListId && parsed.find(l => l.id === savedActiveListId)) {
-            setActiveListId(savedActiveListId);
-          } else {
-            setActiveListId(parsed[0].id);
-          }
+    if (!authToken || !user) return;
+    fetch('/api/watchlists', { headers: authHeaders() })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => {
+        if (data.length > 0) {
+          setLists(data);
+          setActiveListId(data[0].id);
         }
-      } catch (error) {
-        console.log('Error loading lists:', error);
-      }
-    }
-  }, []);
-
-  // Save lists to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('optionsflow_lists', JSON.stringify(lists));
-  }, [lists]);
-
-  // Save active list ID to localStorage
-  useEffect(() => {
-    localStorage.setItem('optionsflow_activeListId', activeListId);
-  }, [activeListId]);
+      })
+      .catch(err => console.log('Error loading watchlists:', err));
+  }, [authToken, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Get current active list
   const activeList = lists.find(l => l.id === activeListId) || lists[0];
 
-  // List management functions
-  const addList = (name) => {
-    const newList = {
-      id: `list_${Date.now()}`,
-      name: name.trim(),
-      tickers: []
-    };
-    setLists([...lists, newList]);
-    setActiveListId(newList.id);
+  // List management functions (API-backed)
+  const addList = async (name) => {
+    if (!authToken) { setShowAuthOverlay(true); return; }
+    try {
+      const res = await fetch('/api/watchlists', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ name: name.trim() }),
+      });
+      const newList = await res.json();
+      setLists(prev => [...prev, newList]);
+      setActiveListId(newList.id);
+    } catch (err) { console.error('Error creating list:', err); }
   };
 
-  const deleteList = (listId) => {
-    if (lists.length <= 1) return; // Keep at least one list
-    const newLists = lists.filter(l => l.id !== listId);
-    setLists(newLists);
-    if (activeListId === listId) {
-      setActiveListId(newLists[0].id);
-    }
+  const deleteList = async (listId) => {
+    if (lists.length <= 1) return;
+    try {
+      await fetch(`/api/watchlists/${listId}`, { method: 'DELETE', headers: authHeaders() });
+      const newLists = lists.filter(l => l.id !== listId);
+      setLists(newLists);
+      if (activeListId === listId) setActiveListId(newLists[0].id);
+    } catch (err) { console.error('Error deleting list:', err); }
   };
 
-  const renameList = (listId, newName) => {
-    setLists(lists.map(l =>
-      l.id === listId ? { ...l, name: newName.trim() } : l
-    ));
+  const renameList = async (listId, newName) => {
+    try {
+      await fetch(`/api/watchlists/${listId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ name: newName.trim() }),
+      });
+      setLists(lists.map(l => l.id === listId ? { ...l, name: newName.trim() } : l));
+    } catch (err) { console.error('Error renaming list:', err); }
   };
 
-  // Ticker management functions
-  const addToWatchlist = (ticker) => {
+  // Ticker management functions (API-backed)
+  const addToWatchlist = async (ticker) => {
+    if (!authToken) { setShowAuthOverlay(true); return; }
     const upperTicker = ticker.toUpperCase().trim();
-    if (upperTicker && !activeList.tickers.includes(upperTicker)) {
+    if (!upperTicker || activeList.tickers.includes(upperTicker)) return;
+    try {
+      await fetch(`/api/watchlists/${activeListId}/tickers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ symbol: upperTicker }),
+      });
       setLists(lists.map(l =>
-        l.id === activeListId
-          ? { ...l, tickers: [...l.tickers, upperTicker] }
-          : l
+        l.id === activeListId ? { ...l, tickers: [...l.tickers, upperTicker] } : l
       ));
-    }
+    } catch (err) { console.error('Error adding ticker:', err); }
   };
 
-  const removeFromWatchlist = (ticker) => {
-    setLists(lists.map(l =>
-      l.id === activeListId
-        ? { ...l, tickers: l.tickers.filter(t => t !== ticker) }
-        : l
-    ));
+  const removeFromWatchlist = async (ticker) => {
+    try {
+      await fetch(`/api/watchlists/${activeListId}/tickers/${ticker}`, {
+        method: 'DELETE', headers: authHeaders(),
+      });
+      setLists(lists.map(l =>
+        l.id === activeListId ? { ...l, tickers: l.tickers.filter(t => t !== ticker) } : l
+      ));
+    } catch (err) { console.error('Error removing ticker:', err); }
   };
 
   const handleListTickerInputChange = (e) => {
@@ -705,13 +722,67 @@ function App() {
     setDragOverIndex(null);
   };
 
+  // Restore auth session on mount
+  useEffect(() => {
+    if (authToken) {
+      fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + authToken } })
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => setUser(data.user))
+        .catch(() => { setAuthToken(null); localStorage.removeItem('authToken'); });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auth handlers
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthLoading(true);
+    try {
+      const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+      const body = authMode === 'login'
+        ? { email: authForm.email, password: authForm.password }
+        : { email: authForm.email, password: authForm.password, name: authForm.name };
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Authentication failed');
+      localStorage.setItem('authToken', data.token);
+      setAuthToken(data.token);
+      setUser(data.user);
+      setShowAuthOverlay(false);
+      setAuthForm({ email: '', password: '', name: '' });
+    } catch (err) {
+      setAuthError(err.message);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    setAuthToken(null);
+    setUser(null);
+    setLists([{ id: 'default', name: 'Watch List', tickers: [] }]);
+  };
+
   // Static database - no auto-update needed
 
   // CSV export handler
-  const handleExportCSV = () => {
-    const token = localStorage.getItem('authToken');
-    const limit = filteredData.length > 0 ? Math.min(filteredData.length, 50000) : 5000;
-    window.open(`/api/export/csv?limit=${limit}${token ? '&token=' + token : ''}`, '_blank');
+  const handleExportCSV = async () => {
+    if (!authToken) { setShowAuthOverlay(true); return; }
+    try {
+      const res = await fetch('/api/export/csv?limit=5000', { headers: authHeaders() });
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `options-flow-export-${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) { console.error('Export error:', err); }
   };
 
   // Get active filters for display (only show non-default filters)
@@ -1838,15 +1909,35 @@ function App() {
               </button>
             )}
           </div>
-          <div className="w-96 px-6">
+          <div className="w-96 px-6 flex items-center gap-2">
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-1.5 px-3 py-2.5 bg-blue-600 hover:bg-blue-700 rounded font-semibold text-sm transition-colors justify-center w-full"
+              className="flex items-center gap-1.5 px-3 py-2.5 bg-blue-600 hover:bg-blue-700 rounded font-semibold text-sm transition-colors justify-center flex-1"
               title="Export filtered data to CSV"
             >
               <Download className="w-4 h-4" />
               <span>Export CSV</span>
             </button>
+            {user && user.role === 'admin' && (
+              <button onClick={() => { setShowAdminPanel(true); fetch('/api/stats', { headers: authHeaders() }).then(r => r.json()).then(setAdminStats).catch(() => {}); }}
+                className="flex items-center gap-1 px-3 py-2.5 bg-purple-600 hover:bg-purple-700 rounded font-semibold text-sm transition-colors"
+                title="Admin Panel">
+                <Shield className="w-4 h-4" />
+              </button>
+            )}
+            {user ? (
+              <button onClick={handleLogout}
+                className="flex items-center gap-1 px-3 py-2.5 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors"
+                title={`Logged in as ${user.email} (${user.role})`}>
+                <LogOut className="w-4 h-4" />
+              </button>
+            ) : (
+              <button onClick={() => setShowAuthOverlay(true)}
+                className="flex items-center gap-1 px-3 py-2.5 bg-green-600 hover:bg-green-700 rounded font-semibold text-sm transition-colors">
+                <LogIn className="w-4 h-4" />
+                <span>Login</span>
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -3367,9 +3458,93 @@ function App() {
           </div>
         </div>
       )}
+      {/* Auth Overlay */}
+      {showAuthOverlay && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAuthOverlay(false)}></div>
+          <div className="relative bg-[#0a0d2e] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <User className="w-5 h-5" />
+                {authMode === 'login' ? 'Log In' : 'Create Account'}
+              </h3>
+              <button onClick={() => setShowAuthOverlay(false)} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            {authError && <div className="mb-3 p-2 bg-red-900/50 border border-red-700 rounded text-red-300 text-sm">{authError}</div>}
+            <form onSubmit={handleAuth} className="space-y-3">
+              {authMode === 'register' && (
+                <input type="text" placeholder="Name" value={authForm.name}
+                  onChange={e => setAuthForm(f => ({...f, name: e.target.value}))}
+                  className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-500" />
+              )}
+              <input type="email" placeholder="Email" required value={authForm.email}
+                onChange={e => setAuthForm(f => ({...f, email: e.target.value}))}
+                className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-500" />
+              <input type="password" placeholder="Password" required value={authForm.password}
+                onChange={e => setAuthForm(f => ({...f, password: e.target.value}))}
+                className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-500" />
+              <button type="submit" disabled={authLoading}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-3 rounded font-semibold text-sm transition-colors">
+                {authLoading ? 'Loading...' : (authMode === 'login' ? 'Log In' : 'Create Account')}
+              </button>
+            </form>
+            <div className="mt-4 text-center text-sm text-gray-400">
+              {authMode === 'login' ? (
+                <>Don't have an account? <button onClick={() => { setAuthMode('register'); setAuthError(''); }} className="text-blue-400 hover:underline">Sign up</button></>
+              ) : (
+                <>Already have an account? <button onClick={() => { setAuthMode('login'); setAuthError(''); }} className="text-blue-400 hover:underline">Log in</button></>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Panel */}
+      {showAdminPanel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAdminPanel(false)}></div>
+          <div className="relative bg-[#0a0d2e] border border-gray-700 rounded-lg p-6 w-full max-w-lg mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <Shield className="w-5 h-5 text-purple-400" /> Admin Dashboard
+              </h3>
+              <button onClick={() => setShowAdminPanel(false)} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            {adminStats ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-[#0f1435] rounded-lg p-4 border border-gray-700">
+                  <div className="text-gray-400 text-xs uppercase mb-1">Total Flow Events</div>
+                  <div className="text-2xl font-bold text-white">{adminStats.totalFlows?.toLocaleString()}</div>
+                </div>
+                <div className="bg-[#0f1435] rounded-lg p-4 border border-gray-700">
+                  <div className="text-gray-400 text-xs uppercase mb-1">Unique Symbols</div>
+                  <div className="text-2xl font-bold text-white">{adminStats.uniqueSymbols?.toLocaleString()}</div>
+                </div>
+                <div className="bg-[#0f1435] rounded-lg p-4 border border-gray-700">
+                  <div className="text-gray-400 text-xs uppercase mb-1">Registered Users</div>
+                  <div className="text-2xl font-bold text-white">{adminStats.totalUsers}</div>
+                </div>
+                <div className="bg-[#0f1435] rounded-lg p-4 border border-gray-700">
+                  <div className="text-gray-400 text-xs uppercase mb-1">Watchlists</div>
+                  <div className="text-2xl font-bold text-white">{adminStats.totalWatchlists}</div>
+                </div>
+                {adminStats.dateRange && (
+                  <div className="col-span-2 bg-[#0f1435] rounded-lg p-4 border border-gray-700">
+                    <div className="text-gray-400 text-xs uppercase mb-1">Data Range</div>
+                    <div className="text-sm text-white">
+                      {new Date(adminStats.dateRange.from).toLocaleDateString()} — {new Date(adminStats.dateRange.to).toLocaleDateString()}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center text-gray-400 py-8">Loading stats...</div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
 
 export default App;
