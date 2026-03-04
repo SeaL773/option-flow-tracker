@@ -628,7 +628,22 @@ app.get('/api/stats', authMiddleware, async (req, res) => {
 // ============================================================
 
 connectDB()
-  .then(() => {
+  .then(async () => {
+    // Seed default admin account
+    const users = db.collection('users');
+    const existing = await users.findOne({ email: 'admin' });
+    if (!existing) {
+      const hashedPassword = await bcrypt.hash('admin', 10);
+      await users.insertOne({
+        email: 'admin',
+        name: 'Administrator',
+        password: hashedPassword,
+        role: 'admin',
+        createdAt: new Date()
+      });
+      console.log('Default admin account created (admin/admin)');
+    }
+
     app.listen(PORT, '127.0.0.1', () => {
       console.log(`Options Flow Server running on http://127.0.0.1:${PORT}`);
     });
