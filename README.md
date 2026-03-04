@@ -54,10 +54,21 @@ The application uses a local MongoDB database named `option_flow_school` with th
 
 ### Importing Data
 
-If you have a MongoDB dump of the flow events data:
+> **Note:** The database dump files are not included in this repository due to file size constraints. You must obtain the `data/` directory separately and place it in the project root before running `mongorestore`.
+
+Once you have the `data/` directory:
 
 ```bash
-mongorestore --db option_flow_school --collection flow_events <path-to-dump>/flow_events.bson
+mongorestore --db option_flow_school data/option_flow_school/
+```
+
+This will import all collections including `flow_events` (~1.2M documents), lookup tables (`sentiments`, `option_strategies`, `trades`, `assets`, `ticker_symbols`), and user data.
+
+Alternatively, you can import just the flow events and let the server seed lookup tables on startup:
+
+```bash
+mongorestore --db option_flow_school --collection flow_events data/option_flow_school/flow_events.bson
+cd server && node seed_lookup.js
 ```
 
 ### Creating Indexes
