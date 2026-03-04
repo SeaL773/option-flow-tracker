@@ -4,8 +4,6 @@
 
 A full-stack web application for tracking and analyzing unusual options market activity. Built as a course project for **CS 4604 — Introduction to Database Management Systems** (Spring 2026, Virginia Tech).
 
-![Virginia Tech](https://brand.vt.edu/content/dam/brand_vt_edu/brand-bar/vt-logo-white.svg)
-
 ## Team Members
 
 - **Lizhou Wang**
