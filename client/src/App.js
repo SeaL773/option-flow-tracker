@@ -1901,7 +1901,7 @@ function App() {
         <div className="xl:hidden px-4 md:px-6">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="Logo" className="w-8 h-8 md:w-9 md:h-9" />
+              <img src="/vt-icon.png" alt="Logo" className="w-8 h-8 md:w-9 md:h-9" />
               <h1 className="text-lg md:text-xl font-bold" style={{ color: '#E5751F' }}>
                 OptionFlow
               </h1>
@@ -1938,7 +1938,7 @@ function App() {
         <div className="hidden xl:flex items-center">
           <div className="flex-1 px-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img src="/logo.png" alt="Logo" className="w-9 h-9" />
+              <img src="/vt-icon.png" alt="Logo" className="w-9 h-9" />
               <h1 className="text-lg md:text-xl font-bold" style={{ color: '#E5751F' }}>
                 Option Flow
               </h1>
