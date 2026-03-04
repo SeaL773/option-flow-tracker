@@ -1,0 +1,7 @@
+node_modules/
+.env
+*.log
+build/
+.cache/
+db_dump/
+docs/option_flow_frontend/
