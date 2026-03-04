@@ -79,7 +79,7 @@ const sentimentMap = {
   },
   5: {
     label: 'Very Bullish',
-    color: 'text-green-600',
+    color: 'text-[#E5751F]',
     symbolColor: '#007823',
     icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" className="w-4 h-4" style={{ transform: 'rotate(30deg) scale(1.3)', color: '#007823' }}><path fill="currentColor" d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2 160 448c0 17.7 14.3 32 32 32s32-14.3 32-32l0-306.7L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"></path></svg>
   }
@@ -2190,7 +2190,7 @@ function App() {
                 step="0.1"
                 value={filters.minPremium}
                 onChange={(e) => setFilters({...filters, minPremium: parseFloat(e.target.value)})}
-                className="w-full h-1.5 bg-gray-700/50 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                className="w-full h-1.5 bg-gray-700/50 rounded-lg appearance-none cursor-pointer accent-[#E5751F]"
               />
             </div>
 
@@ -2206,7 +2206,7 @@ function App() {
                 max="181"
                 value={filters.maxExpiration}
                 onChange={(e) => setFilters({...filters, maxExpiration: parseInt(e.target.value)})}
-                className="w-full h-1.5 bg-gray-700/50 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                className="w-full h-1.5 bg-gray-700/50 rounded-lg appearance-none cursor-pointer accent-[#E5751F]"
               />
             </div>
 
@@ -2264,7 +2264,7 @@ function App() {
                   onClick={() => toggleFilter('sentiment', key)}
                   className={`py-2.5 px-1 rounded border transition-all relative ${
                     filters.sentiment[key]
-                      ? 'bg-green-900/30 border-green-600'
+                      ? 'bg-[#861F41]/20 border-[#861F41]'
                       : 'bg-gray-800/40 border-gray-700'
                   }`}
                   title={sentimentMap[sentiment].label}
@@ -2291,7 +2291,7 @@ function App() {
                   onClick={() => setFilters(prev => ({ ...prev, timeRange: prev.timeRange === key ? null : key }))}
                   className={`py-2.5 px-3 text-xs font-semibold rounded border transition-all text-center ${
                     filters.timeRange === key
-                      ? 'bg-blue-900/30 border-blue-600 text-[#E5751F]'
+                      ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                       : 'bg-gray-800/40 border-gray-700 text-gray-400'
                   }`}
                 >
@@ -2305,7 +2305,7 @@ function App() {
                 onClick={() => toggleFilter(null, 'buySide')}
                 className={`py-2.5 px-3 text-sm font-semibold rounded border transition-all ${
                   filters.buySide
-                    ? 'bg-green-900/30 border-green-600 text-green-300'
+                    ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                     : 'bg-gray-800/40 border-gray-700 text-gray-400'
                 }`}
               >
@@ -2315,7 +2315,7 @@ function App() {
                 onClick={() => toggleFilter(null, 'sellSide')}
                 className={`py-2.5 px-3 text-sm font-semibold rounded border transition-all ${
                   filters.sellSide
-                    ? 'bg-green-900/30 border-green-600 text-green-300'
+                    ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                     : 'bg-gray-800/40 border-gray-700 text-gray-400'
                 }`}
               >
@@ -2330,7 +2330,7 @@ function App() {
                   onClick={() => toggleFilter(null, type)}
                   className={`py-2.5 px-3 text-sm font-semibold rounded border transition-all capitalize ${
                     filters[type]
-                      ? 'bg-green-900/30 border-green-600 text-green-300'
+                      ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                       : 'bg-gray-800/40 border-gray-700 text-gray-400'
                   }`}
                 >
@@ -2344,7 +2344,7 @@ function App() {
                 onClick={() => toggleFilter(null, 'stocks')}
                 className={`py-2.5 px-3 text-sm font-semibold rounded border transition-all ${
                   filters.stocks
-                    ? 'bg-green-900/30 border-green-600 text-green-300'
+                    ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                     : 'bg-gray-800/40 border-gray-700 text-gray-400'
                 }`}
               >
@@ -2354,7 +2354,7 @@ function App() {
                 onClick={() => toggleFilter(null, 'etfs')}
                 className={`py-2.5 px-3 text-sm font-semibold rounded border transition-all ${
                   filters.etfs
-                    ? 'bg-green-900/30 border-green-600 text-green-300'
+                    ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                     : 'bg-gray-800/40 border-gray-700 text-gray-400'
                 }`}
               >
@@ -2369,7 +2369,7 @@ function App() {
                   onClick={() => toggleFilter(null, type)}
                   className={`py-2.5 px-2 text-sm font-semibold rounded border transition-all capitalize ${
                     filters[type]
-                      ? 'bg-green-900/30 border-green-600 text-green-300'
+                      ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                       : 'bg-gray-800/40 border-gray-700 text-gray-400'
                   }`}
                 >
@@ -2838,7 +2838,7 @@ function App() {
                       step="0.1"
                       value={filters.minPremium}
                       onChange={(e) => setFilters({...filters, minPremium: parseFloat(e.target.value)})}
-                      className="w-full h-1.5 bg-gray-700/50 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                      className="w-full h-1.5 bg-gray-700/50 rounded-lg appearance-none cursor-pointer accent-[#E5751F]"
                     />
                   </div>
 
@@ -2854,7 +2854,7 @@ function App() {
                       max="181"
                       value={filters.maxExpiration}
                       onChange={(e) => setFilters({...filters, maxExpiration: parseInt(e.target.value)})}
-                      className="w-full h-1.5 bg-gray-700/50 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                      className="w-full h-1.5 bg-gray-700/50 rounded-lg appearance-none cursor-pointer accent-[#E5751F]"
                     />
                   </div>
 
@@ -2912,7 +2912,7 @@ function App() {
                         onClick={() => toggleFilter('sentiment', key)}
                         className={`py-2.5 px-1 rounded border transition-all relative ${
                           filters.sentiment[key]
-                            ? 'bg-green-900/30 border-green-600'
+                            ? 'bg-[#861F41]/20 border-[#861F41]'
                             : 'bg-gray-800/40 border-gray-700'
                         }`}
                         title={sentimentMap[sentiment].label}
@@ -2939,7 +2939,7 @@ function App() {
                         onClick={() => setFilters(prev => ({ ...prev, timeRange: prev.timeRange === key ? null : key }))}
                         className={`py-2.5 px-3 text-xs font-semibold rounded border transition-all text-center ${
                           filters.timeRange === key
-                            ? 'bg-blue-900/30 border-blue-600 text-[#E5751F]'
+                            ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                             : 'bg-gray-800/40 border-gray-700 text-gray-400'
                         }`}
                       >
@@ -2953,7 +2953,7 @@ function App() {
                       onClick={() => toggleFilter(null, 'buySide')}
                       className={`py-2.5 px-3 text-sm font-semibold rounded border transition-all ${
                         filters.buySide
-                          ? 'bg-green-900/30 border-green-600 text-green-300'
+                          ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                           : 'bg-gray-800/40 border-gray-700 text-gray-400'
                       }`}
                     >
@@ -2963,7 +2963,7 @@ function App() {
                       onClick={() => toggleFilter(null, 'sellSide')}
                       className={`py-2.5 px-3 text-sm font-semibold rounded border transition-all ${
                         filters.sellSide
-                          ? 'bg-green-900/30 border-green-600 text-green-300'
+                          ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                           : 'bg-gray-800/40 border-gray-700 text-gray-400'
                       }`}
                     >
@@ -2978,7 +2978,7 @@ function App() {
                         onClick={() => toggleFilter(null, type)}
                         className={`py-2.5 px-3 text-sm font-semibold rounded border transition-all capitalize ${
                           filters[type]
-                            ? 'bg-green-900/30 border-green-600 text-green-300'
+                            ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                             : 'bg-gray-800/40 border-gray-700 text-gray-400'
                         }`}
                       >
@@ -2992,7 +2992,7 @@ function App() {
                       onClick={() => toggleFilter(null, 'stocks')}
                       className={`py-2.5 px-3 text-sm font-semibold rounded border transition-all ${
                         filters.stocks
-                          ? 'bg-green-900/30 border-green-600 text-green-300'
+                          ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                           : 'bg-gray-800/40 border-gray-700 text-gray-400'
                       }`}
                     >
@@ -3002,7 +3002,7 @@ function App() {
                       onClick={() => toggleFilter(null, 'etfs')}
                       className={`py-2.5 px-3 text-sm font-semibold rounded border transition-all ${
                         filters.etfs
-                          ? 'bg-green-900/30 border-green-600 text-green-300'
+                          ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                           : 'bg-gray-800/40 border-gray-700 text-gray-400'
                       }`}
                     >
@@ -3017,7 +3017,7 @@ function App() {
                         onClick={() => toggleFilter(null, type)}
                         className={`py-2.5 px-2 text-sm font-semibold rounded border transition-all capitalize ${
                           filters[type]
-                            ? 'bg-green-900/30 border-green-600 text-green-300'
+                            ? 'bg-[#861F41]/20 border-[#861F41] text-[#E5751F]'
                             : 'bg-gray-800/40 border-gray-700 text-gray-400'
                         }`}
                       >
