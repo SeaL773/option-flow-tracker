@@ -1814,6 +1814,52 @@ function App() {
     );
   };
 
+  // If not logged in, show full-screen login page
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#040421] text-gray-100 flex items-center justify-center">
+        <div className="w-full max-w-md mx-4">
+          <div className="text-center mb-8">
+            <img src="/logo.png" alt="Logo" className="w-16 h-16 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold" style={{ color: '#bedbed' }}>Options Flow Tracker</h1>
+            <p className="text-gray-400 text-sm mt-2">CS 4604 - Database Management Systems</p>
+          </div>
+          <div className="bg-[#0a0d2e] border border-gray-700 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <User className="w-5 h-5" />
+              {authMode === 'login' ? 'Log In' : 'Create Account'}
+            </h3>
+            {authError && <div className="mb-3 p-2 bg-red-900/50 border border-red-700 rounded text-red-300 text-sm">{authError}</div>}
+            <form onSubmit={handleAuth} className="space-y-3">
+              {authMode === 'register' && (
+                <input type="text" placeholder="Name" value={authForm.name}
+                  onChange={e => setAuthForm(f => ({...f, name: e.target.value}))}
+                  className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-500" />
+              )}
+              <input type="email" placeholder="Email" required value={authForm.email}
+                onChange={e => setAuthForm(f => ({...f, email: e.target.value}))}
+                className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-500" />
+              <input type="password" placeholder="Password" required value={authForm.password}
+                onChange={e => setAuthForm(f => ({...f, password: e.target.value}))}
+                className="w-full bg-[#0f1435] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-500" />
+              <button type="submit" disabled={authLoading}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-3 rounded font-semibold text-sm transition-colors">
+                {authLoading ? 'Loading...' : (authMode === 'login' ? 'Log In' : 'Create Account')}
+              </button>
+            </form>
+            <div className="mt-4 text-center text-sm text-gray-400">
+              {authMode === 'login' ? (
+                <>Don't have an account? <button onClick={() => { setAuthMode('register'); setAuthError(''); }} className="text-blue-400 hover:underline">Sign up</button></>
+              ) : (
+                <>Already have an account? <button onClick={() => { setAuthMode('login'); setAuthError(''); }} className="text-blue-400 hover:underline">Log in</button></>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#040421] text-gray-100">
       {/* Loading Overlay */}
