@@ -1867,11 +1867,11 @@ function App() {
         <div className="fixed inset-0 bg-[#1a0a11] z-50 flex flex-col items-center justify-center">
           <div className="flex flex-col items-center gap-6">
             {/* Logo */}
-            <img src="/logo.png" alt="Logo" className="w-20 h-20 animate-pulse" />
+            <img src="/vt-icon.png" alt="Logo" className="w-16 h-16 animate-pulse" />
 
             {/* Loading Text */}
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-white mb-2">Loading OptionFlow</h2>
+              <h2 className="text-2xl font-bold text-white mb-2">Loading Options Flow</h2>
               <p className="text-gray-400 text-sm">Fetching latest options data...</p>
             </div>
 
@@ -1890,7 +1890,7 @@ function App() {
             <div className="flex gap-2">
               <div className="w-3 h-3 bg-[#E5751F] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
               <div className="w-3 h-3 bg-[#861F41] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              <div className="w-3 h-3 bg-[#E5751F] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
             </div>
           </div>
         </div>
