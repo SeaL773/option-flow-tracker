@@ -1836,7 +1836,7 @@ function App() {
                   onChange={e => setAuthForm(f => ({...f, name: e.target.value}))}
                   className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
               )}
-              <input type="email" placeholder="Email" required value={authForm.email}
+              <input type="text" placeholder="Email or Username" required value={authForm.email}
                 onChange={e => setAuthForm(f => ({...f, email: e.target.value}))}
                 className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
               <input type="password" placeholder="Password" required value={authForm.password}
@@ -3523,7 +3523,7 @@ function App() {
                   onChange={e => setAuthForm(f => ({...f, name: e.target.value}))}
                   className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
               )}
-              <input type="email" placeholder="Email" required value={authForm.email}
+              <input type="text" placeholder="Email or Username" required value={authForm.email}
                 onChange={e => setAuthForm(f => ({...f, email: e.target.value}))}
                 className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
               <input type="password" placeholder="Password" required value={authForm.password}
