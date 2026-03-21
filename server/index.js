@@ -281,6 +281,9 @@ app.get('/api/tickers', optionalAuth, async (req, res) => {
 app.get('/api/watchlists', authMiddleware, async (req, res) => {
   try {
     const watchlists = db.collection('watchlists');
+    const watchlistItems = db.collection('watchlist_items');
+    const tickerSymbols = db.collection('ticker_symbols');
+
     const lists = await watchlists
       .find({ userId: req.user.userId })
       .sort({ createdAt: 1 })
@@ -291,15 +294,36 @@ app.get('/api/watchlists', authMiddleware, async (req, res) => {
       const defaultList = {
         userId: req.user.userId,
         name: 'Watch List',
-        tickers: [],
         createdAt: new Date(),
       };
       const result = await watchlists.insertOne(defaultList);
       defaultList._id = result.insertedId;
-      return res.json([{ id: defaultList._id.toString(), name: defaultList.name, tickers: defaultList.tickers }]);
+      return res.json([{ id: defaultList._id.toString(), name: defaultList.name, tickers: [] }]);
     }
 
-    res.json(lists.map(l => ({ id: l._id.toString(), name: l.name, tickers: l.tickers })));
+    // For each watchlist, query watchlist_items and join with ticker_symbols
+    const result = await Promise.all(lists.map(async (l) => {
+      const items = await watchlistItems
+        .find({ watchlist_id: l._id.toString() })
+        .toArray();
+
+      let tickers = [];
+      if (items.length > 0) {
+        const tickerIds = items.map(i => i.ticker_id);
+        const symbols = await tickerSymbols
+          .find({ _id: { $in: tickerIds.map(id => {
+            try { return new ObjectId(id); } catch(e) { return id; }
+          }) } })
+          .toArray();
+        const symbolMap = {};
+        symbols.forEach(s => { symbolMap[s._id.toString()] = s.symbol || s.name; });
+        tickers = items.map(i => symbolMap[i.ticker_id] || i.ticker_id).filter(Boolean);
+      }
+
+      return { id: l._id.toString(), name: l.name, tickers };
+    }));
+
+    res.json(result);
   } catch (err) {
     console.error('Get watchlists error:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -317,7 +341,6 @@ app.post('/api/watchlists', authMiddleware, async (req, res) => {
     const newList = {
       userId: req.user.userId,
       name: name.trim(),
-      tickers: [],
       createdAt: new Date(),
     };
 
@@ -331,12 +354,15 @@ app.post('/api/watchlists', authMiddleware, async (req, res) => {
 
 app.put('/api/watchlists/:id', authMiddleware, async (req, res) => {
   try {
-    const { name, tickers } = req.body;
+    const { name } = req.body;
     const watchlists = db.collection('watchlists');
 
     const update = {};
     if (name !== undefined) update.name = name.trim();
-    if (tickers !== undefined) update.tickers = tickers;
+
+    if (Object.keys(update).length === 0) {
+      return res.json({ success: true });
+    }
 
     const result = await watchlists.updateOne(
       { _id: new ObjectId(req.params.id), userId: req.user.userId },
@@ -357,6 +383,8 @@ app.put('/api/watchlists/:id', authMiddleware, async (req, res) => {
 app.delete('/api/watchlists/:id', authMiddleware, async (req, res) => {
   try {
     const watchlists = db.collection('watchlists');
+    const watchlistItems = db.collection('watchlist_items');
+
     const result = await watchlists.deleteOne({
       _id: new ObjectId(req.params.id),
       userId: req.user.userId,
@@ -365,6 +393,9 @@ app.delete('/api/watchlists/:id', authMiddleware, async (req, res) => {
     if (result.deletedCount === 0) {
       return res.status(404).json({ error: 'Watchlist not found' });
     }
+
+    // Also delete related watchlist_items
+    await watchlistItems.deleteMany({ watchlist_id: req.params.id });
 
     res.json({ success: true });
   } catch (err) {
@@ -380,14 +411,40 @@ app.post('/api/watchlists/:id/tickers', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Symbol is required' });
     }
 
-    const watchlists = db.collection('watchlists');
-    const result = await watchlists.updateOne(
-      { _id: new ObjectId(req.params.id), userId: req.user.userId },
-      { $addToSet: { tickers: symbol.toUpperCase().trim() } }
-    );
+    const upperSymbol = symbol.toUpperCase().trim();
 
-    if (result.matchedCount === 0) {
+    // Verify watchlist belongs to user
+    const watchlists = db.collection('watchlists');
+    const watchlist = await watchlists.findOne({
+      _id: new ObjectId(req.params.id),
+      userId: req.user.userId,
+    });
+    if (!watchlist) {
       return res.status(404).json({ error: 'Watchlist not found' });
+    }
+
+    // Look up ticker_id from ticker_symbols
+    const tickerSymbols = db.collection('ticker_symbols');
+    let tickerDoc = await tickerSymbols.findOne({ symbol: upperSymbol });
+
+    // If ticker doesn't exist in ticker_symbols, create it
+    if (!tickerDoc) {
+      const insertResult = await tickerSymbols.insertOne({ symbol: upperSymbol });
+      tickerDoc = { _id: insertResult.insertedId, symbol: upperSymbol };
+    }
+
+    // Check if already in watchlist_items (prevent duplicates)
+    const watchlistItems = db.collection('watchlist_items');
+    const existing = await watchlistItems.findOne({
+      watchlist_id: req.params.id,
+      ticker_id: tickerDoc._id.toString(),
+    });
+
+    if (!existing) {
+      await watchlistItems.insertOne({
+        watchlist_id: req.params.id,
+        ticker_id: tickerDoc._id.toString(),
+      });
     }
 
     res.json({ success: true });
@@ -399,14 +456,26 @@ app.post('/api/watchlists/:id/tickers', authMiddleware, async (req, res) => {
 
 app.delete('/api/watchlists/:id/tickers/:symbol', authMiddleware, async (req, res) => {
   try {
+    // Verify watchlist belongs to user
     const watchlists = db.collection('watchlists');
-    const result = await watchlists.updateOne(
-      { _id: new ObjectId(req.params.id), userId: req.user.userId },
-      { $pull: { tickers: req.params.symbol } }
-    );
-
-    if (result.matchedCount === 0) {
+    const watchlist = await watchlists.findOne({
+      _id: new ObjectId(req.params.id),
+      userId: req.user.userId,
+    });
+    if (!watchlist) {
       return res.status(404).json({ error: 'Watchlist not found' });
+    }
+
+    // Look up ticker_id from ticker_symbols
+    const tickerSymbols = db.collection('ticker_symbols');
+    const tickerDoc = await tickerSymbols.findOne({ symbol: req.params.symbol });
+
+    if (tickerDoc) {
+      const watchlistItems = db.collection('watchlist_items');
+      await watchlistItems.deleteOne({
+        watchlist_id: req.params.id,
+        ticker_id: tickerDoc._id.toString(),
+      });
     }
 
     res.json({ success: true });
@@ -429,13 +498,27 @@ app.get('/api/presets', authMiddleware, async (req, res) => {
       .toArray();
 
     res.json(
-      lists.map(p => ({
-        id: p._id.toString(),
-        name: p.name,
-        description: p.description || '',
-        color: p.color || '#60a5fa',
-        criteria: p.criteria,
-      }))
+      lists.map(p => {
+        // Reconstruct criteria from atomic fields for frontend compatibility
+        const criteria = p.criteria || {};
+        if (p.min_premium !== undefined) criteria.minPremium = p.min_premium;
+        if (p.max_premium !== undefined) criteria.maxPremium = p.max_premium;
+        if (p.min_volume !== undefined) criteria.minVolume = p.min_volume;
+        if (p.max_volume !== undefined) criteria.maxVolume = p.max_volume;
+        if (p.min_oi !== undefined) criteria.minOI = p.min_oi;
+        if (p.max_oi !== undefined) criteria.maxOI = p.max_oi;
+        if (p.sentiment_id !== undefined) criteria.sentimentId = p.sentiment_id;
+        if (p.strategy_id !== undefined) criteria.strategyId = p.strategy_id;
+        if (p.trade_type_id !== undefined) criteria.tradeTypeId = p.trade_type_id;
+
+        return {
+          id: p._id.toString(),
+          name: p.name,
+          description: p.description || '',
+          color: p.color || '#60a5fa',
+          criteria,
+        };
+      })
     );
   } catch (err) {
     console.error('Get presets error:', err);
@@ -456,10 +539,24 @@ app.post('/api/presets', authMiddleware, async (req, res) => {
       name: name.trim(),
       description: description || '',
       color: color || '#60a5fa',
-      criteria,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+
+    // Store atomic fields from criteria for normalized schema
+    if (criteria) {
+      if (criteria.minPremium !== undefined) preset.min_premium = criteria.minPremium;
+      if (criteria.maxPremium !== undefined) preset.max_premium = criteria.maxPremium;
+      if (criteria.minVolume !== undefined) preset.min_volume = criteria.minVolume;
+      if (criteria.maxVolume !== undefined) preset.max_volume = criteria.maxVolume;
+      if (criteria.minOI !== undefined) preset.min_oi = criteria.minOI;
+      if (criteria.maxOI !== undefined) preset.max_oi = criteria.maxOI;
+      if (criteria.sentimentId !== undefined) preset.sentiment_id = criteria.sentimentId;
+      if (criteria.strategyId !== undefined) preset.strategy_id = criteria.strategyId;
+      if (criteria.tradeTypeId !== undefined) preset.trade_type_id = criteria.tradeTypeId;
+      // Also store original criteria for backward compatibility
+      preset.criteria = criteria;
+    }
 
     const result = await presets.insertOne(preset);
     res.status(201).json({
@@ -484,7 +581,19 @@ app.put('/api/presets/:id', authMiddleware, async (req, res) => {
     if (name !== undefined) update.name = name.trim();
     if (description !== undefined) update.description = description;
     if (color !== undefined) update.color = color;
-    if (criteria !== undefined) update.criteria = criteria;
+    if (criteria !== undefined) {
+      update.criteria = criteria;
+      // Also update atomic fields
+      if (criteria.minPremium !== undefined) update.min_premium = criteria.minPremium;
+      if (criteria.maxPremium !== undefined) update.max_premium = criteria.maxPremium;
+      if (criteria.minVolume !== undefined) update.min_volume = criteria.minVolume;
+      if (criteria.maxVolume !== undefined) update.max_volume = criteria.maxVolume;
+      if (criteria.minOI !== undefined) update.min_oi = criteria.minOI;
+      if (criteria.maxOI !== undefined) update.max_oi = criteria.maxOI;
+      if (criteria.sentimentId !== undefined) update.sentiment_id = criteria.sentimentId;
+      if (criteria.strategyId !== undefined) update.strategy_id = criteria.strategyId;
+      if (criteria.tradeTypeId !== undefined) update.trade_type_id = criteria.tradeTypeId;
+    }
 
     const result = await presets.updateOne(
       { _id: new ObjectId(req.params.id), userId: req.user.userId },
@@ -550,7 +659,7 @@ app.get('/api/export/csv', authMiddleware, async (req, res) => {
     const flowTypeLabels = { 0: 'Single', 1: 'Split', 2: 'Sweep', 3: 'Block' };
 
     // CSV header
-    const headers = ['Code', 'Date', 'Symbol', 'Sentiment', 'Side', 'Strategy', 'Premium', 'Price', 'Bid', 'Ask', 'Volume', 'OI', 'OTM', 'Expiration', 'Spot', 'Strikes', 'FlowType', 'Opening', 'Chance'];
+    const headers = ['Code', 'Date', 'Symbol', 'Sentiment', 'Side', 'Strategy', 'Premium', 'Price', 'Bid', 'Ask', 'Volume', 'OI', 'OTM', 'Expiration', 'Spot', 'Strike', 'FlowType', 'Opening', 'Chance'];
     const rows = events.map(e => [
       e._id,
       e.date ? new Date(e.date).toISOString() : '',
@@ -567,8 +676,8 @@ app.get('/api/export/csv', authMiddleware, async (req, res) => {
       e.otm,
       e.expiration ? new Date(e.expiration).toISOString() : '',
       e.spot,
-      e.strikes ? e.strikes.join('/') : '',
-      flowTypeLabels[e.type] || e.type,
+      e.strike_price || '',
+      flowTypeLabels[e.flowType] || '',
       e.opening,
       e.chance,
     ]);
@@ -620,6 +729,36 @@ app.get('/api/stats', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('Stats error:', err);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================================
+// Health Check
+// ============================================================
+
+app.get('/api/health', async (req, res) => {
+  try {
+    const start = Date.now();
+    await db.command({ ping: 1 });
+    const latency = Date.now() - start;
+    const collections = await db.listCollections().toArray();
+    const flowCount = await db.collection('flow_events').estimatedDocumentCount();
+    res.json({
+      status: 'connected',
+      database: DB_NAME,
+      host: MONGO_URI,
+      latencyMs: latency,
+      collections: collections.length,
+      flowEvents: flowCount,
+      serverUptime: Math.floor(process.uptime()),
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'disconnected',
+      error: err.message,
+      timestamp: new Date().toISOString()
+    });
   }
 });
 

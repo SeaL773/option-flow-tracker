@@ -148,7 +148,7 @@ const formatExpiration = (dateString) => {
 };
 
 const getFlowType = (flow) => {
-  const flowType = flow.flowType ?? flow.type;
+  const flowType = flow.flowType;
   switch(flowType) {
     case 3: return <span className="text-[#E5751F] font-semibold">BLOCK</span>;
     case 2: return <span className="text-orange-400 font-semibold">SWEEP</span>;
@@ -229,6 +229,10 @@ function App() {
   // Admin panel state
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [adminStats, setAdminStats] = useState(null);
+
+  // DB Health state
+  const [dbHealth, setDbHealth] = useState(null);
+  const [showDbHealth, setShowDbHealth] = useState(false);
 
   // Auth helper
   const authHeaders = useCallback(() => authToken ? { Authorization: 'Bearer ' + authToken } : {}, [authToken]);
@@ -731,6 +735,23 @@ function App() {
         .catch(() => { setAuthToken(null); localStorage.removeItem('authToken'); });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // DB Health check - poll every 30s
+  useEffect(() => {
+    const checkHealth = () => {
+      const start = performance.now();
+      fetch('/api/health')
+        .then(r => r.json())
+        .then(data => {
+          data.roundTripMs = Math.round(performance.now() - start);
+          setDbHealth(data);
+        })
+        .catch(() => setDbHealth({ status: 'disconnected', error: 'Cannot reach server' }));
+    };
+    checkHealth();
+    const interval = setInterval(checkHealth, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Auth handlers
   const handleAuth = async (e) => {
@@ -1241,7 +1262,7 @@ function App() {
       if (!filters.sellSide && flow.side === 2) return false;
 
       // Flow type filter: 0=Single, 1=Split, 2=Sweep, 3=Block
-      const flowType = flow.flowType ?? flow.type;
+      const flowType = flow.flowType;
 
       if (!filters.single && flowType === 0) return false;
       if (!filters.split && flowType === 1) return false;
@@ -1513,9 +1534,7 @@ function App() {
                     {flow.side === 1 ? 'Buy' : 'Sell'}
                   </span>
                   <span className="text-white text-sm">
-                    {flow.strikes && flow.strikes.length > 0
-                      ? flow.strikes.join('/')
-                      : ''} {strategyMap[flow.definition] || 'Unknown'}
+                    {flow.strike_price || ''} {strategyMap[flow.definition] || 'Unknown'}
                   </span>
                   {flow.opening && (
                     <span className="text-sm" style={{ color: '#8e9baf' }}>
@@ -1655,9 +1674,7 @@ function App() {
               <div className="text-white font-bold" style={{ fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 <span>{flow.side === 1 ? 'Buy' : 'Sell'} </span>
                 <span>
-                  {flow.strikes && flow.strikes.length > 0
-                    ? flow.strikes.join('/')
-                    : ''} {strategyMap[flow.definition] || 'Unknown'}
+                  {flow.strike_price || ''} {strategyMap[flow.definition] || 'Unknown'}
                 </span>
                 {flow.opening && (
                   <span style={{ color: '#8e9baf' }}> To Open</span>
@@ -1696,9 +1713,7 @@ function App() {
                     {flow.side === 1 ? 'Buy' : 'Sell'}
                   </span>
                   <span className="text-white break-words">
-                    {flow.strikes && flow.strikes.length > 0
-                      ? flow.strikes.join('/')
-                      : ''} {strategyMap[flow.definition] || 'Unknown'}
+                    {flow.strike_price || ''} {strategyMap[flow.definition] || 'Unknown'}
                   </span>
                   {flow.opening && (
                     <span style={{ color: '#8e9baf' }}>
@@ -1943,6 +1958,81 @@ function App() {
                 Option Flow
               </h1>
               <SentimentGauge value={displaySentimentValue} />
+
+              {/* DB Connection Status */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowDbHealth(!showDbHealth)}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs transition-colors hover:bg-[#3d1a22]"
+                  title="Database Connection Status"
+                >
+                  <span className={`w-2 h-2 rounded-full ${dbHealth?.status === 'connected' ? 'bg-green-400 animate-pulse' : 'bg-red-500'}`}></span>
+                  <span className="text-gray-400">
+                    {dbHealth?.status === 'connected' ? `MongoDB · ${dbHealth.latencyMs}ms` : 'Disconnected'}
+                  </span>
+                </button>
+                {showDbHealth && dbHealth && (
+                  <div className="absolute top-full left-0 mt-1 bg-[#2d1118] border border-gray-700 rounded-lg shadow-xl p-4 z-50 min-w-[280px]">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-semibold text-white">Database Connection</span>
+                      <button onClick={() => setShowDbHealth(false)} className="text-gray-500 hover:text-white">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Status</span>
+                        <span className={dbHealth.status === 'connected' ? 'text-green-400' : 'text-red-400'}>
+                          {dbHealth.status === 'connected' ? '● Connected' : '● Disconnected'}
+                        </span>
+                      </div>
+                      {dbHealth.status === 'connected' && (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">DBMS</span>
+                            <span className="text-white">MongoDB 7</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Database</span>
+                            <span className="text-white">{dbHealth.database}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Host</span>
+                            <span className="text-white">localhost:27017</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">DB Ping</span>
+                            <span className="text-[#E5751F] font-mono">{dbHealth.latencyMs}ms</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Round Trip</span>
+                            <span className="text-[#E5751F] font-mono">{dbHealth.roundTripMs}ms</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Collections</span>
+                            <span className="text-white">{dbHealth.collections}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Flow Events</span>
+                            <span className="text-white">{dbHealth.flowEvents?.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Server Uptime</span>
+                            <span className="text-white">{Math.floor(dbHealth.serverUptime / 60)}m {dbHealth.serverUptime % 60}s</span>
+                          </div>
+                        </>
+                      )}
+                      {dbHealth.error && (
+                        <div className="text-red-400 mt-1">{dbHealth.error}</div>
+                      )}
+                      <div className="text-gray-600 text-[10px] mt-2 pt-2 border-t border-gray-800">
+                        Auto-refreshes every 30s · Last: {new Date(dbHealth.timestamp).toLocaleTimeString()}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
             </div>
             {selectedRows.size > 0 && (
               <button
