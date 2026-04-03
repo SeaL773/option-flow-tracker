@@ -710,12 +710,21 @@ function App() {
     // Insert at new position
     currentTickers.splice(dropIndex, 0, draggedTicker);
 
-    // Update the list with new order
+    // Update the list with new order (optimistic update + API persist)
     setLists(lists.map(l =>
       l.id === activeListId
         ? { ...l, tickers: currentTickers }
         : l
     ));
+
+    // Persist reorder to API
+    if (authToken) {
+      fetch(`/api/watchlists/${activeListId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ tickers: currentTickers }),
+      }).catch(err => console.error('Error persisting ticker reorder:', err));
+    }
 
     setDraggedTickerIndex(null);
     setDragOverIndex(null);
@@ -1829,51 +1838,7 @@ function App() {
     );
   };
 
-  // If not logged in, show full-screen login page
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-[#1a0a11] text-gray-100 flex items-center justify-center">
-        <div className="w-full max-w-md mx-4">
-          <div className="text-center mb-8">
-            <img src="/vt-logo.svg" alt="Virginia Tech" className="w-48 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold" style={{ color: '#E5751F' }}>Options Flow Tracker</h1>
-            <p className="text-gray-400 text-sm mt-2">CS 4604 - Database Management Systems</p>
-          </div>
-          <div className="bg-[#2d1118] border border-gray-700 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <User className="w-5 h-5" />
-              {authMode === 'login' ? 'Log In' : 'Create Account'}
-            </h3>
-            {authError && <div className="mb-3 p-2 bg-red-900/50 border border-red-700 rounded text-red-300 text-sm">{authError}</div>}
-            <form onSubmit={handleAuth} className="space-y-3">
-              {authMode === 'register' && (
-                <input type="text" placeholder="Name" value={authForm.name}
-                  onChange={e => setAuthForm(f => ({...f, name: e.target.value}))}
-                  className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
-              )}
-              <input type="text" placeholder="Email or Username" required value={authForm.email}
-                onChange={e => setAuthForm(f => ({...f, email: e.target.value}))}
-                className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
-              <input type="password" placeholder="Password" required value={authForm.password}
-                onChange={e => setAuthForm(f => ({...f, password: e.target.value}))}
-                className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
-              <button type="submit" disabled={authLoading}
-                className="w-full bg-[#861F41] hover:bg-[#6b1835] disabled:bg-gray-600 text-white py-3 rounded font-semibold text-sm transition-colors">
-                {authLoading ? 'Loading...' : (authMode === 'login' ? 'Log In' : 'Create Account')}
-              </button>
-            </form>
-            <div className="mt-4 text-center text-sm text-gray-400">
-              {authMode === 'login' ? (
-                <>Don't have an account? <button onClick={() => { setAuthMode('register'); setAuthError(''); }} className="text-[#E5751F] hover:underline">Sign up</button></>
-              ) : (
-                <>Already have an account? <button onClick={() => { setAuthMode('login'); setAuthError(''); }} className="text-[#E5751F] hover:underline">Log in</button></>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Allow browsing data without login (read-only). Auth overlay handles login when needed.
 
   return (
     <div className="min-h-screen bg-[#1a0a11] text-gray-100">
@@ -2594,6 +2559,18 @@ function App() {
           </>
           ) : (
             /* Lists Tab - TradingView Style */
+            !user ? (
+              <div className="text-center text-gray-400 py-12">
+                <User className="w-8 h-8 mx-auto mb-3 text-gray-500" />
+                <p className="text-sm mb-3">Log in to use watchlists</p>
+                <button
+                  onClick={() => setShowAuthOverlay(true)}
+                  className="px-4 py-2 bg-[#861F41] hover:bg-[#6b1835] rounded text-sm font-semibold transition-colors text-white"
+                >
+                  Log In
+                </button>
+              </div>
+            ) : (
             <div className="space-y-4">
               {/* List Header with Name and Add Button */}
               <div className="flex items-center justify-between">
@@ -2744,6 +2721,7 @@ function App() {
                 </div>
               )}
             </div>
+            )
           )}
           </div>
           </div>
@@ -3242,6 +3220,18 @@ function App() {
               </>
               ) : (
                 /* Lists Tab - Mobile - TradingView Style */
+                !user ? (
+                  <div className="text-center text-gray-400 py-12">
+                    <User className="w-8 h-8 mx-auto mb-3 text-gray-500" />
+                    <p className="text-sm mb-3">Log in to use watchlists</p>
+                    <button
+                      onClick={() => { setShowAuthOverlay(true); setIsFilterDrawerOpen(false); }}
+                      className="px-4 py-2 bg-[#861F41] hover:bg-[#6b1835] rounded text-sm font-semibold transition-colors text-white"
+                    >
+                      Log In
+                    </button>
+                  </div>
+                ) : (
                 <div className="space-y-4">
                   {/* List Header with Name and Add Button */}
                   <div className="flex items-center justify-between">
@@ -3394,6 +3384,7 @@ function App() {
                     </div>
                   )}
                 </div>
+                )
               )}
               </div>
             </div>
