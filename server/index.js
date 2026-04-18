@@ -725,6 +725,45 @@ app.get('/api/export/csv', authMiddleware, async (req, res) => {
 });
 
 // ============================================================
+// Admin Routes
+// ============================================================
+
+app.post('/api/admin/users', authMiddleware, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    const { email, password, name, role } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+    const validRoles = ['trader', 'analyst', 'admin'];
+    const userRole = validRoles.includes(role) ? role : 'trader';
+
+    const users = db.collection('users');
+    const existing = await users.findOne({ email: email.toLowerCase() });
+    if (existing) {
+      return res.status(409).json({ error: 'Email already registered' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await users.insertOne({
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      name: name || email.split('@')[0],
+      role: userRole,
+      createdAt: new Date(),
+    });
+
+    res.status(201).json({
+      user: { id: result.insertedId, email: email.toLowerCase(), name: name || email.split('@')[0], role: userRole },
+    });
+  } catch (err) {
+    console.error('Admin create user error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Stats Route (for admin dashboard)
 // ============================================================
 

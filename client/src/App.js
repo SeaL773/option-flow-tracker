@@ -234,6 +234,9 @@ function App() {
   // Admin panel state
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [adminStats, setAdminStats] = useState(null);
+  const [createUserForm, setCreateUserForm] = useState({ email: '', password: '', name: '', role: 'trader' });
+  const [createUserError, setCreateUserError] = useState('');
+  const [createUserSuccess, setCreateUserSuccess] = useState('');
 
   // DB Health state
   const [dbHealth, setDbHealth] = useState(null);
@@ -836,7 +839,25 @@ function App() {
     }
   };
 
-  // Static database - no auto-update needed
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    setCreateUserError('');
+    setCreateUserSuccess('');
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify(createUserForm),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create user');
+      setCreateUserSuccess(`User "${data.user.email}" created as ${data.user.role}`);
+      setCreateUserForm({ email: '', password: '', name: '', role: 'trader' });
+      if (adminStats) setAdminStats(s => ({ ...s, totalUsers: (s.totalUsers || 0) + 1 }));
+    } catch (err) {
+      setCreateUserError(err.message);
+    }
+  };
 
   // CSV export handler
   const handleExportCSV = async () => {
@@ -3787,6 +3808,37 @@ function App() {
             ) : (
               <div className="text-center text-gray-400 py-8">Loading stats...</div>
             )}
+            <div className="mt-6 pt-4 border-t border-gray-700">
+              <h4 className="text-sm font-semibold text-white mb-3">Create User</h4>
+              {createUserError && <div className="mb-3 p-2 bg-red-900/50 border border-red-700 rounded text-red-300 text-sm">{createUserError}</div>}
+              {createUserSuccess && <div className="mb-3 p-2 bg-green-900/50 border border-green-700 rounded text-green-300 text-sm">{createUserSuccess}</div>}
+              <form onSubmit={handleCreateUser} className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <input type="text" placeholder="Email / Username" required value={createUserForm.email}
+                    onChange={e => setCreateUserForm(f => ({...f, email: e.target.value}))}
+                    className="bg-[#3d1a22] border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
+                  <input type="password" placeholder="Password" required value={createUserForm.password}
+                    onChange={e => setCreateUserForm(f => ({...f, password: e.target.value}))}
+                    className="bg-[#3d1a22] border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input type="text" placeholder="Name (optional)" value={createUserForm.name}
+                    onChange={e => setCreateUserForm(f => ({...f, name: e.target.value}))}
+                    className="bg-[#3d1a22] border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
+                  <select value={createUserForm.role}
+                    onChange={e => setCreateUserForm(f => ({...f, role: e.target.value}))}
+                    className="bg-[#3d1a22] border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#E5751F] text-white">
+                    <option value="trader">Trader</option>
+                    <option value="analyst">Analyst</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <button type="submit"
+                  className="w-full bg-[#861F41] hover:bg-[#6b1835] text-white py-2 rounded font-semibold text-sm transition-colors">
+                  Create User
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}
