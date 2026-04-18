@@ -2083,10 +2083,10 @@ function App() {
               </button>
             )}
           </div>
-          <div className="w-96 px-6 flex items-center gap-2">
+          <div className="px-6 flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => openReports()}
-              className="flex items-center gap-1.5 px-3 py-2.5 bg-[#861F41] hover:bg-[#6b1835] rounded font-semibold text-sm transition-colors justify-center flex-1"
+              className="flex items-center gap-1.5 px-3 py-2.5 bg-[#861F41] hover:bg-[#6b1835] rounded font-semibold text-sm transition-colors"
               title="View Reports"
             >
               <BarChart3 className="w-4 h-4" />
@@ -2094,11 +2094,11 @@ function App() {
             </button>
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-1.5 px-3 py-2.5 bg-[#861F41] hover:bg-[#6b1835] rounded font-semibold text-sm transition-colors justify-center flex-1"
+              className="flex items-center gap-1.5 px-3 py-2.5 bg-[#861F41] hover:bg-[#6b1835] rounded font-semibold text-sm transition-colors whitespace-nowrap"
               title="Export filtered data to CSV"
             >
               <Download className="w-4 h-4" />
-              <span>Export CSV</span>
+              <span>Export</span>
             </button>
             {user && user.role === 'admin' && (
               <button onClick={() => { setShowAdminPanel(true); fetch('/api/stats', { headers: authHeaders() }).then(r => r.json()).then(setAdminStats).catch(() => {}); }}
