@@ -148,6 +148,37 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+app.put('/api/auth/password', authMiddleware, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required' });
+    }
+    if (newPassword.length < 4) {
+      return res.status(400).json({ error: 'New password must be at least 4 characters' });
+    }
+
+    const users = db.collection('users');
+    const user = await users.findOne({ _id: new ObjectId(req.user.userId) });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const valid = await bcrypt.compare(currentPassword, user.password);
+    if (!valid) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await users.updateOne({ _id: user._id }, { $set: { password: hashedPassword } });
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('Change password error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.get('/api/auth/me', authMiddleware, async (req, res) => {
   res.json({
     user: {
@@ -728,6 +759,133 @@ app.get('/api/stats', authMiddleware, async (req, res) => {
     });
   } catch (err) {
     console.error('Stats error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================================
+// Report Routes (Phase 6 - Aggregation + Join)
+// ============================================================
+
+// Report 1: Top Symbols by Total Premium
+// Uses: $group (aggregation) + $lookup (join with ticker_symbols)
+app.get('/api/reports/top-symbols', optionalAuth, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const flowEvents = db.collection('flow_events');
+
+    const pipeline = [
+      // GROUP BY symbol — aggregate premium, trade count, sentiment, flow types
+      {
+        $group: {
+          _id: '$symbol',
+          totalPremium: { $sum: '$premium' },
+          tradeCount: { $sum: 1 },
+          avgSentiment: { $avg: '$sentiment' },
+          maxPremium: { $max: '$premium' },
+          avgVolume: { $avg: '$volume' },
+          sweepCount: { $sum: { $cond: [{ $eq: ['$flowType', 2] }, 1, 0] } },
+          blockCount: { $sum: { $cond: [{ $eq: ['$flowType', 3] }, 1, 0] } },
+          buyCount: { $sum: { $cond: [{ $eq: ['$side', 1] }, 1, 0] } },
+          sellCount: { $sum: { $cond: [{ $eq: ['$side', 2] }, 1, 0] } },
+        },
+      },
+      { $sort: { totalPremium: -1 } },
+      { $limit: limit },
+      // JOIN with ticker_symbols to retrieve symbol metadata
+      {
+        $lookup: {
+          from: 'ticker_symbols',
+          localField: '_id',
+          foreignField: 'symbol',
+          as: 'symbolInfo',
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          symbol: '$_id',
+          totalPremium: 1,
+          tradeCount: 1,
+          avgSentiment: { $round: ['$avgSentiment', 2] },
+          maxPremium: 1,
+          avgVolume: { $round: ['$avgVolume', 0] },
+          sweepCount: 1,
+          blockCount: 1,
+          buyCount: 1,
+          sellCount: 1,
+          inSymbolTable: { $gt: [{ $size: '$symbolInfo' }, 0] },
+        },
+      },
+    ];
+
+    const results = await flowEvents.aggregate(pipeline).toArray();
+    res.json(results);
+  } catch (err) {
+    console.error('Report top-symbols error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Report 2: Daily Flow Activity Summary
+// Uses: $group (aggregation by date) + $lookup (join with users for system context)
+app.get('/api/reports/daily-activity', optionalAuth, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 30, 365);
+    const flowEvents = db.collection('flow_events');
+
+    const pipeline = [
+      // GROUP BY date — aggregate daily metrics
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+          totalPremium: { $sum: '$premium' },
+          tradeCount: { $sum: 1 },
+          avgSentiment: { $avg: '$sentiment' },
+          uniqueSymbols: { $addToSet: '$symbol' },
+          sweepCount: { $sum: { $cond: [{ $eq: ['$flowType', 2] }, 1, 0] } },
+          blockCount: { $sum: { $cond: [{ $eq: ['$flowType', 3] }, 1, 0] } },
+          splitCount: { $sum: { $cond: [{ $eq: ['$flowType', 1] }, 1, 0] } },
+          singleCount: { $sum: { $cond: [{ $eq: ['$flowType', 0] }, 1, 0] } },
+          buyCount: { $sum: { $cond: [{ $eq: ['$side', 1] }, 1, 0] } },
+          sellCount: { $sum: { $cond: [{ $eq: ['$side', 2] }, 1, 0] } },
+        },
+      },
+      { $sort: { _id: -1 } },
+      { $limit: limit },
+      // JOIN with users collection — adds registered user count as system context
+      {
+        $lookup: {
+          from: 'users',
+          pipeline: [{ $count: 'total' }],
+          as: 'userStats',
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          date: '$_id',
+          totalPremium: 1,
+          tradeCount: 1,
+          avgSentiment: { $round: ['$avgSentiment', 2] },
+          uniqueSymbolCount: { $size: '$uniqueSymbols' },
+          sweepCount: 1,
+          blockCount: 1,
+          splitCount: 1,
+          singleCount: 1,
+          buyCount: 1,
+          sellCount: 1,
+          registeredUsers: {
+            $ifNull: [{ $arrayElemAt: ['$userStats.total', 0] }, 0],
+          },
+        },
+      },
+    ];
+
+    const results = await flowEvents.aggregate(pipeline).toArray();
+    res.json(results);
+  } catch (err) {
+    console.error('Report daily-activity error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

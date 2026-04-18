@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { X, Calendar, XCircle, Download, LogIn, LogOut, User, Shield, BarChart3 } from 'lucide-react';
+import { X, Calendar, XCircle, Download, LogIn, LogOut, User, Shield, BarChart3, KeyRound } from 'lucide-react';
 import { FixedSizeList } from 'react-window';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -225,6 +225,11 @@ function App() {
   const [authForm, setAuthForm] = useState({ email: '', password: '', name: '' });
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [changePasswordForm, setChangePasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [changePasswordError, setChangePasswordError] = useState('');
+  const [changePasswordSuccess, setChangePasswordSuccess] = useState('');
+  const [changePasswordLoading, setChangePasswordLoading] = useState(false);
 
   // Admin panel state
   const [showAdminPanel, setShowAdminPanel] = useState(false);
@@ -233,6 +238,13 @@ function App() {
   // DB Health state
   const [dbHealth, setDbHealth] = useState(null);
   const [showDbHealth, setShowDbHealth] = useState(false);
+
+  // Reports state
+  const [showReportsPanel, setShowReportsPanel] = useState(false);
+  const [reportTab, setReportTab] = useState('topSymbols');
+  const [topSymbolsData, setTopSymbolsData] = useState(null);
+  const [dailyActivityData, setDailyActivityData] = useState(null);
+  const [reportsLoading, setReportsLoading] = useState(false);
 
   // Auth helper
   const authHeaders = useCallback(() => authToken ? { Authorization: 'Bearer ' + authToken } : {}, [authToken]);
@@ -798,6 +810,32 @@ function App() {
     setLists([{ id: 'default', name: 'Watch List', tickers: [] }]);
   };
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setChangePasswordError('');
+    setChangePasswordSuccess('');
+    if (changePasswordForm.newPassword !== changePasswordForm.confirmPassword) {
+      setChangePasswordError('New passwords do not match');
+      return;
+    }
+    setChangePasswordLoading(true);
+    try {
+      const res = await fetch('/api/auth/password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ currentPassword: changePasswordForm.currentPassword, newPassword: changePasswordForm.newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to change password');
+      setChangePasswordSuccess('Password changed successfully');
+      setChangePasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      setChangePasswordError(err.message);
+    } finally {
+      setChangePasswordLoading(false);
+    }
+  };
+
   // Static database - no auto-update needed
 
   // CSV export handler
@@ -815,7 +853,34 @@ function App() {
     } catch (err) { console.error('Export error:', err); }
   };
 
-  // Get active filters for display (only show non-default filters)
+  const fetchReports = async (tab) => {
+    setReportsLoading(true);
+    try {
+      if (tab === 'topSymbols' && !topSymbolsData) {
+        const res = await fetch('/api/reports/top-symbols?limit=20');
+        if (res.ok) setTopSymbolsData(await res.json());
+      } else if (tab === 'dailyActivity' && !dailyActivityData) {
+        const res = await fetch('/api/reports/daily-activity?limit=30');
+        if (res.ok) setDailyActivityData(await res.json());
+      }
+    } catch (err) {
+      console.error('Report fetch error:', err);
+    } finally {
+      setReportsLoading(false);
+    }
+  };
+
+  const openReports = (tab = 'topSymbols') => {
+    setReportTab(tab);
+    setShowReportsPanel(true);
+    fetchReports(tab);
+  };
+
+  const switchReportTab = (tab) => {
+    setReportTab(tab);
+    fetchReports(tab);
+  };
+
   const getActiveFilters = () => {
     const active = [];
 
@@ -1901,6 +1966,14 @@ function App() {
                   </button>
                 )}
                 <button
+                  onClick={() => openReports()}
+                  className="flex items-center gap-1.5 px-2.5 md:px-4 py-1.5 md:py-2 bg-[#861F41] hover:bg-[#6b1835] rounded-lg transition-colors text-xs md:text-base justify-center"
+                  title="View Reports"
+                >
+                  <BarChart3 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  <span className="hidden sm:inline">Reports</span>
+                </button>
+                <button
                   onClick={handleExportCSV}
                   className="flex items-center gap-1.5 px-2.5 md:px-4 py-1.5 md:py-2 bg-[#861F41] hover:bg-[#6b1835] rounded-lg transition-colors text-xs md:text-base justify-center"
                   title="Export filtered data to CSV"
@@ -2012,6 +2085,14 @@ function App() {
           </div>
           <div className="w-96 px-6 flex items-center gap-2">
             <button
+              onClick={() => openReports()}
+              className="flex items-center gap-1.5 px-3 py-2.5 bg-[#861F41] hover:bg-[#6b1835] rounded font-semibold text-sm transition-colors justify-center flex-1"
+              title="View Reports"
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span>Reports</span>
+            </button>
+            <button
               onClick={handleExportCSV}
               className="flex items-center gap-1.5 px-3 py-2.5 bg-[#861F41] hover:bg-[#6b1835] rounded font-semibold text-sm transition-colors justify-center flex-1"
               title="Export filtered data to CSV"
@@ -2027,11 +2108,18 @@ function App() {
               </button>
             )}
             {user ? (
+              <>
+              <button onClick={() => { setShowChangePassword(true); setChangePasswordError(''); setChangePasswordSuccess(''); setChangePasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' }); }}
+                className="flex items-center gap-1 px-3 py-2.5 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors"
+                title="Change Password">
+                <KeyRound className="w-4 h-4" />
+              </button>
               <button onClick={handleLogout}
                 className="flex items-center gap-1 px-3 py-2.5 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors"
                 title={`Logged in as ${user.email} (${user.role})`}>
                 <LogOut className="w-4 h-4" />
               </button>
+              </>
             ) : (
               <button onClick={() => setShowAuthOverlay(true)}
                 className="flex items-center gap-1 px-3 py-2.5 bg-[#861F41] hover:bg-[#6b1835] rounded font-semibold text-sm transition-colors">
@@ -3626,6 +3714,38 @@ function App() {
         </div>
       )}
 
+      {showChangePassword && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowChangePassword(false)}></div>
+          <div className="relative bg-[#2d1118] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <KeyRound className="w-5 h-5" />
+                Change Password
+              </h3>
+              <button onClick={() => setShowChangePassword(false)} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            {changePasswordError && <div className="mb-3 p-2 bg-red-900/50 border border-red-700 rounded text-red-300 text-sm">{changePasswordError}</div>}
+            {changePasswordSuccess && <div className="mb-3 p-2 bg-green-900/50 border border-green-700 rounded text-green-300 text-sm">{changePasswordSuccess}</div>}
+            <form onSubmit={handleChangePassword} className="space-y-3">
+              <input type="password" placeholder="Current Password" required value={changePasswordForm.currentPassword}
+                onChange={e => setChangePasswordForm(f => ({...f, currentPassword: e.target.value}))}
+                className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
+              <input type="password" placeholder="New Password" required value={changePasswordForm.newPassword}
+                onChange={e => setChangePasswordForm(f => ({...f, newPassword: e.target.value}))}
+                className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
+              <input type="password" placeholder="Confirm New Password" required value={changePasswordForm.confirmPassword}
+                onChange={e => setChangePasswordForm(f => ({...f, confirmPassword: e.target.value}))}
+                className="w-full bg-[#3d1a22] border border-gray-700 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#E5751F] text-white placeholder:text-gray-500" />
+              <button type="submit" disabled={changePasswordLoading}
+                className="w-full bg-[#861F41] hover:bg-[#6b1835] disabled:bg-gray-600 text-white py-3 rounded font-semibold text-sm transition-colors">
+                {changePasswordLoading ? 'Updating...' : 'Update Password'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Admin Panel */}
       {showAdminPanel && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -3667,6 +3787,162 @@ function App() {
             ) : (
               <div className="text-center text-gray-400 py-8">Loading stats...</div>
             )}
+          </div>
+        </div>
+      )}
+
+      {showReportsPanel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowReportsPanel(false)}></div>
+          <div className="relative bg-[#2d1118] border border-gray-700 rounded-lg w-full max-w-5xl mx-4 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between p-6 pb-0">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-[#E5751F]" /> Reports
+              </h3>
+              <button onClick={() => setShowReportsPanel(false)} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+
+            <div className="px-6 pt-4">
+              <div className="bg-[#3d1a22] p-1 rounded-lg inline-flex w-full">
+                <button
+                  onClick={() => switchReportTab('topSymbols')}
+                  className={`flex-1 px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 ${
+                    reportTab === 'topSymbols'
+                      ? 'bg-[#861F41] text-white shadow-lg'
+                      : 'text-gray-400 hover:text-gray-300'
+                  }`}
+                >
+                  Top Symbols by Premium
+                </button>
+                <button
+                  onClick={() => switchReportTab('dailyActivity')}
+                  className={`flex-1 px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 ${
+                    reportTab === 'dailyActivity'
+                      ? 'bg-[#861F41] text-white shadow-lg'
+                      : 'text-gray-400 hover:text-gray-300'
+                  }`}
+                >
+                  Daily Flow Activity
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 overflow-y-auto flex-1">
+              {reportsLoading ? (
+                <div className="text-center text-gray-400 py-12">Loading report data...</div>
+              ) : reportTab === 'topSymbols' ? (
+                topSymbolsData && topSymbolsData.length > 0 ? (
+                  <div>
+                    <p className="text-gray-400 text-xs mb-4">
+                      Aggregates all flow events by ticker symbol (GROUP BY symbol), joined with the ticker_symbols
+                      collection ($lookup). Shows the top 20 symbols ranked by total premium volume.
+                    </p>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-[#3d1a22] text-gray-400 text-xs uppercase">
+                            <th className="text-left px-3 py-2.5">#</th>
+                            <th className="text-left px-3 py-2.5">Symbol</th>
+                            <th className="text-right px-3 py-2.5">Total Premium</th>
+                            <th className="text-right px-3 py-2.5">Trades</th>
+                            <th className="text-right px-3 py-2.5">Max Single</th>
+                            <th className="text-right px-3 py-2.5">Avg Sentiment</th>
+                            <th className="text-right px-3 py-2.5">Sweeps</th>
+                            <th className="text-right px-3 py-2.5">Blocks</th>
+                            <th className="text-right px-3 py-2.5">Buy/Sell</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {topSymbolsData.map((row, i) => {
+                            const sentLabel = row.avgSentiment < 2 ? 'Bearish' : row.avgSentiment > 3 ? 'Bullish' : 'Neutral';
+                            const sentColor = row.avgSentiment < 2 ? 'text-red-400' : row.avgSentiment > 3 ? 'text-green-400' : 'text-gray-400';
+                            return (
+                              <tr key={row.symbol} className="border-b border-gray-800 hover:bg-[#3d1a22] transition-colors">
+                                <td className="px-3 py-2.5 text-gray-500">{i + 1}</td>
+                                <td className="px-3 py-2.5 font-semibold text-[#E5751F]">{row.symbol}</td>
+                                <td className="px-3 py-2.5 text-right text-white font-mono">
+                                  ${(row.totalPremium / 1e9).toFixed(2)}B
+                                </td>
+                                <td className="px-3 py-2.5 text-right text-gray-300">{row.tradeCount.toLocaleString()}</td>
+                                <td className="px-3 py-2.5 text-right text-gray-300">{formatPremium(row.maxPremium)}</td>
+                                <td className={`px-3 py-2.5 text-right ${sentColor}`}>
+                                  {row.avgSentiment} ({sentLabel})
+                                </td>
+                                <td className="px-3 py-2.5 text-right text-orange-400">{row.sweepCount.toLocaleString()}</td>
+                                <td className="px-3 py-2.5 text-right text-[#E5751F]">{row.blockCount.toLocaleString()}</td>
+                                <td className="px-3 py-2.5 text-right text-gray-300">
+                                  {row.buyCount.toLocaleString()} / {row.sellCount.toLocaleString()}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="mt-4 text-gray-500 text-xs">
+                      Query: flow_events $group by symbol + $lookup ticker_symbols | {topSymbolsData.length} rows
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-400 py-12">No data available</div>
+                )
+              ) : (
+                dailyActivityData && dailyActivityData.length > 0 ? (
+                  <div>
+                    <p className="text-gray-400 text-xs mb-4">
+                      Aggregates all flow events by trade date (GROUP BY date), joined with the users
+                      collection ($lookup) for system context. Shows daily premium volume, trade counts, and flow type breakdown.
+                    </p>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-[#3d1a22] text-gray-400 text-xs uppercase">
+                            <th className="text-left px-3 py-2.5">Date</th>
+                            <th className="text-right px-3 py-2.5">Total Premium</th>
+                            <th className="text-right px-3 py-2.5">Trades</th>
+                            <th className="text-right px-3 py-2.5">Symbols</th>
+                            <th className="text-right px-3 py-2.5">Avg Sent.</th>
+                            <th className="text-right px-3 py-2.5">Sweep</th>
+                            <th className="text-right px-3 py-2.5">Block</th>
+                            <th className="text-right px-3 py-2.5">Split</th>
+                            <th className="text-right px-3 py-2.5">Single</th>
+                            <th className="text-right px-3 py-2.5">Buy/Sell</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dailyActivityData.map((row) => {
+                            const sentColor = row.avgSentiment < 2 ? 'text-red-400' : row.avgSentiment > 3 ? 'text-green-400' : 'text-gray-400';
+                            return (
+                              <tr key={row.date} className="border-b border-gray-800 hover:bg-[#3d1a22] transition-colors">
+                                <td className="px-3 py-2.5 text-white font-mono">{row.date}</td>
+                                <td className="px-3 py-2.5 text-right text-white font-mono">
+                                  ${(row.totalPremium / 1e6).toFixed(1)}M
+                                </td>
+                                <td className="px-3 py-2.5 text-right text-gray-300">{row.tradeCount.toLocaleString()}</td>
+                                <td className="px-3 py-2.5 text-right text-gray-300">{row.uniqueSymbolCount}</td>
+                                <td className={`px-3 py-2.5 text-right ${sentColor}`}>{row.avgSentiment}</td>
+                                <td className="px-3 py-2.5 text-right text-orange-400">{row.sweepCount.toLocaleString()}</td>
+                                <td className="px-3 py-2.5 text-right text-[#E5751F]">{row.blockCount.toLocaleString()}</td>
+                                <td className="px-3 py-2.5 text-right text-gray-400">{row.splitCount.toLocaleString()}</td>
+                                <td className="px-3 py-2.5 text-right text-gray-500">{row.singleCount.toLocaleString()}</td>
+                                <td className="px-3 py-2.5 text-right text-gray-300">
+                                  {row.buyCount.toLocaleString()} / {row.sellCount.toLocaleString()}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="mt-4 text-gray-500 text-xs">
+                      Query: flow_events $group by date + $lookup users | {dailyActivityData.length} rows | {dailyActivityData[0]?.registeredUsers} registered users
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-400 py-12">No data available</div>
+                )
+              )}
+            </div>
           </div>
         </div>
       )}
